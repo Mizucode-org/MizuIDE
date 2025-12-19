@@ -77,11 +77,48 @@ class IDE_API:
         
         try:
             full_path = os.path.join(self.current_folder, filepath)
+            
+            # Security check: Prevent directory traversal
+            if not os.path.abspath(full_path).startswith(os.path.abspath(self.current_folder)):
+                 return {"error": "Access denied: Cannot save outside workspace"}
+            
             os.makedirs(os.path.dirname(full_path), exist_ok=True)
             
             with open(full_path, 'w', encoding='utf-8') as f:
                 f.write(content)
             return {"success": True, "path": filepath}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def save_file_as(self, content):
+        """Save content to a new file via dialog"""
+        if not self.current_folder:
+            return {"error": "No folder selected"}
+            
+        try:
+            result = webview.windows[0].create_file_dialog(
+                webview.SAVE_DIALOG,
+                directory=self.current_folder,
+                save_filename='untitled.txt'
+            )
+            
+            if result:
+                # Handle both string (path) and list/tuple return types
+                save_path = result[0] if isinstance(result, (list, tuple)) else result
+                
+                if save_path:
+                    with open(save_path, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                    
+                    # If saved inside the workspace, return relative path
+                    if save_path.startswith(self.current_folder):
+                        rel_path = os.path.relpath(save_path, self.current_folder)
+                        self.current_file = rel_path
+                        return {"success": True, "path": rel_path}
+                    
+                    return {"success": True, "path": save_path, "outside_workspace": True}
+            
+            return {"cancelled": True}
         except Exception as e:
             return {"error": str(e)}
     
