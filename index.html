@@ -3,13 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Mizu Code</title>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+
+            /* kill scrollbars */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
-        
+
+        *::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             height: 100vh;
@@ -18,7 +34,7 @@
             background: #1e1e1e;
             color: #cccccc;
         }
-        
+
         .toolbar {
             background: #323233;
             padding: 10px;
@@ -27,7 +43,7 @@
             gap: 10px;
             align-items: center;
         }
-        
+
         button {
             background: #0e639c;
             color: white;
@@ -37,17 +53,17 @@
             cursor: pointer;
             font-size: 13px;
         }
-        
+
         button:hover {
             background: #1177bb;
         }
-        
+
         .container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-        
+
         .sidebar {
             width: 300px;
             background: #252526;
@@ -56,7 +72,7 @@
             flex-direction: column;
             user-select: none;
         }
-        
+
         .sidebar-header {
             padding: 10px;
             background: #323233;
@@ -64,108 +80,106 @@
             font-weight: 600;
             font-size: 11px;
             letter-spacing: 0.5px;
-            color: #cccccc;
         }
-        
+
         .file-tree {
             flex: 1;
             overflow-y: auto;
             padding: 4px 0;
         }
-        
+
         .tree-item {
             display: flex;
             align-items: center;
             padding: 3px 8px;
             cursor: pointer;
             font-size: 13px;
-            position: relative;
         }
-        
+
         .tree-item:hover {
             background: #2a2d2e;
         }
-        
-        .tree-item.active {
-            background: #37373d;
-        }
-        
+
         .tree-item.selected {
             background: #094771;
         }
-        
+
         .tree-arrow {
             width: 16px;
-            height: 16px;
             display: inline-flex;
-            align-items: center;
             justify-content: center;
-            margin-right: 2px;
-            transition: transform 0.1s;
-            color: #cccccc;
+            margin-right: 4px;
+            cursor: pointer;
         }
-        
+
         .tree-arrow.collapsed {
             transform: rotate(-90deg);
         }
-        
+
         .tree-arrow.empty {
             opacity: 0;
+            cursor: default;
         }
-        
+
         .tree-icon {
             width: 16px;
-            height: 16px;
             margin-right: 6px;
             display: inline-flex;
-            align-items: center;
             justify-content: center;
         }
-        
+
+        .tree-icon i {
+            font-size: 14px;
+            color: #c5c5c5;
+        }
+
+        .tree-item:hover .tree-icon i {
+            color: #dcdcaa;
+        }
+
         .tree-label {
             flex: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .tree-children {
             margin-left: 16px;
         }
-        
+
         .tree-children.collapsed {
             display: none;
         }
-        
+
         .editor-container {
             flex: 1;
             display: flex;
             flex-direction: column;
         }
-        
+
         .editor-header {
             padding: 8px 12px;
             background: #323233;
             border-bottom: 1px solid #2b2b2b;
             display: flex;
             justify-content: space-between;
-            align-items: center;
             font-size: 13px;
         }
-        
+
         textarea {
             flex: 1;
             background: #1e1e1e;
             color: #d4d4d4;
             border: none;
             padding: 15px;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-family: Consolas, monospace;
             font-size: 14px;
             line-height: 1.6;
             resize: none;
             outline: none;
         }
-        
+
         .welcome {
             flex: 1;
             display: flex;
@@ -174,12 +188,7 @@
             flex-direction: column;
             gap: 20px;
         }
-        
-        .welcome h2 {
-            color: #888;
-            font-weight: 400;
-        }
-        
+
         .context-menu {
             position: fixed;
             background: #3c3c3c;
@@ -187,302 +196,182 @@
             border-radius: 3px;
             padding: 4px 0;
             min-width: 200px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
             z-index: 1000;
             display: none;
         }
-        
+
         .context-menu-item {
             padding: 6px 20px;
             cursor: pointer;
             font-size: 13px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-        
+
         .context-menu-item:hover {
             background: #094771;
         }
-        
+
         .context-menu-separator {
             height: 1px;
             background: #454545;
             margin: 4px 0;
         }
-        
+
         .status {
             padding: 4px 8px;
             background: #16825d;
             border-radius: 2px;
             font-size: 11px;
         }
-        
-        input.inline-edit {
-            background: #3c3c3c;
-            border: 1px solid #007acc;
-            color: #cccccc;
-            padding: 2px 4px;
-            font-size: 13px;
-            outline: none;
-            font-family: inherit;
-        }
     </style>
 </head>
+
 <body>
-    <div class="toolbar">
-        <button onclick="selectFolder()">Workspace</button>
-        <button onclick="saveCurrentFile()" id="saveBtn" disabled>Save</button>
-        <span id="folderName" style="margin-left: auto; font-size: 12px; color: #888;"></span>
-    </div>
-    
-    <div class="container">
-        <div class="sidebar">
-            <div class="sidebar-header">EXPLORER</div>
-            <div class="file-tree" id="fileTree"></div>
-        </div>
-        
-        <div class="editor-container">
-            <div id="welcome" class="welcome">
-                <h2>Mizu Code</h2>
-                <button onclick="selectFolder()">Open Workspace</button>
-            </div>
-            
-            <div id="editorSection" style="display: none; flex: 1; display: flex; flex-direction: column;">
-                <div class="editor-header">
-                    <span id="currentFile">No file open</span>
-                    <span class="status" id="status" style="display: none;"></span>
-                </div>
-                <textarea id="editor" placeholder="Select a file to edit..."></textarea>
-            </div>
-        </div>
-    </div>
-    
-    <div id="contextMenu" class="context-menu">
-        <div class="context-menu-item" onclick="contextAction('newFile')">New File</div>
-        <div class="context-menu-item" onclick="contextAction('newFolder')">New Folder</div>
-        <div class="context-menu-separator"></div>
-        <div class="context-menu-item" onclick="contextAction('rename')">Rename</div>
-        <div class="context-menu-item" onclick="contextAction('delete')">Delete</div>
+<div class="toolbar">
+    <button onclick="selectFolder()">Workspace</button>
+    <button onclick="saveCurrentFile()" id="saveBtn" disabled>Save</button>
+    <span id="folderName" style="margin-left:auto;font-size:12px;color:#888;"></span>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <div class="sidebar-header">EXPLORER</div>
+        <div class="file-tree" id="fileTree"></div>
     </div>
 
-    <script>
-        let currentFilePath = null;
-        let fileTree = [];
-        let contextTarget = null;
-        let collapsedFolders = new Set();
-        
-        async function selectFolder() {
-            const result = await pywebview.api.select_folder();
-            if (result.success) {
-                document.getElementById('folderName').textContent = result.folder;
-                document.getElementById('welcome').style.display = 'none';
-                document.getElementById('editorSection').style.display = 'flex';
-                await loadFileTree();
-            }
+    <div class="editor-container">
+        <div id="welcome" class="welcome">
+            <h2>Mizu Code</h2>
+            <button onclick="selectFolder()">Open Workspace</button>
+        </div>
+
+        <div id="editorSection" style="display:none;flex:1;flex-direction:column;">
+            <div class="editor-header">
+                <span id="currentFile">No file open</span>
+                <span class="status" id="status" style="display:none;"></span>
+            </div>
+            <textarea id="editor"></textarea>
+        </div>
+    </div>
+</div>
+
+<div id="contextMenu" class="context-menu"></div>
+
+<script>
+let fileTree = [];
+let currentFilePath = null;
+let collapsedFolders = new Set();
+let contextTarget = null;
+
+async function selectFolder() {
+    const result = await pywebview.api.select_folder();
+    if (result.success) {
+        document.getElementById("folderName").textContent = result.folder;
+        document.getElementById("welcome").style.display = "none";
+        document.getElementById("editorSection").style.display = "flex";
+        loadFileTree();
+    }
+}
+
+async function loadFileTree() {
+    const result = await pywebview.api.get_file_tree();
+    if (result.success) {
+        fileTree = result.tree;
+        renderTree();
+    }
+}
+
+function renderTree() {
+    const root = document.getElementById("fileTree");
+    root.innerHTML = "";
+    renderItems(fileTree, root);
+}
+
+function renderItems(items, container) {
+    items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "tree-item";
+        if (item.path === currentFilePath) row.classList.add("selected");
+
+        const arrow = document.createElement("span");
+        arrow.className = "tree-arrow";
+        if (item.type === "folder" && item.children?.length) {
+            arrow.innerHTML = '<i class="fa-solid fa-chevron-down"></i>';
+            if (collapsedFolders.has(item.path)) arrow.classList.add("collapsed");
+            arrow.onclick = e => {
+                e.stopPropagation();
+                toggleFolder(item.path);
+            };
+        } else {
+            arrow.classList.add("empty");
         }
-        
-        async function loadFileTree() {
-            const result = await pywebview.api.get_file_tree();
-            if (result.success) {
-                fileTree = result.tree;
-                renderTree();
-            }
-        }
-        
-        function renderTree() {
-            const container = document.getElementById('fileTree');
-            container.innerHTML = '';
-            renderTreeItems(fileTree, container, '');
-        }
-        
-        function renderTreeItems(items, container, parentPath) {
-            items.forEach(item => {
-                const itemDiv = document.createElement('div');
-                
-                const itemContent = document.createElement('div');
-                itemContent.className = 'tree-item';
-                itemContent.dataset.path = item.path;
-                itemContent.dataset.type = item.type;
-                
-                if (item.type === 'folder') {
-                    const arrow = document.createElement('span');
-                    arrow.className = 'tree-arrow';
-                    if (item.children && item.children.length > 0) {
-                        arrow.textContent = '▼';
-                        if (collapsedFolders.has(item.path)) {
-                            arrow.classList.add('collapsed');
-                        }
-                    } else {
-                        arrow.classList.add('empty');
-                    }
-                    itemContent.appendChild(arrow);
-                    
-                    const icon = document.createElement('span');
-                    icon.className = 'tree-icon';
-                    icon.textContent = '📁';
-                    itemContent.appendChild(icon);
-                } else {
-                    const emptyArrow = document.createElement('span');
-                    emptyArrow.className = 'tree-arrow empty';
-                    itemContent.appendChild(emptyArrow);
-                    
-                    const icon = document.createElement('span');
-                    icon.className = 'tree-icon';
-                    icon.textContent = '📄';
-                    itemContent.appendChild(icon);
-                }
-                
-                const label = document.createElement('span');
-                label.className = 'tree-label';
-                label.textContent = item.name;
-                itemContent.appendChild(label);
-                
-                if (item.path === currentFilePath) {
-                    itemContent.classList.add('selected');
-                }
-                
-                itemContent.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (item.type === 'folder') {
-                        toggleFolder(item.path);
-                    } else {
-                        openFile(item.path);
-                    }
-                });
-                
-                itemContent.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    showContextMenu(e, item);
-                });
-                
-                itemDiv.appendChild(itemContent);
-                
-                if (item.type === 'folder' && item.children) {
-                    const childrenDiv = document.createElement('div');
-                    childrenDiv.className = 'tree-children';
-                    if (collapsedFolders.has(item.path)) {
-                        childrenDiv.classList.add('collapsed');
-                    }
-                    renderTreeItems(item.children, childrenDiv, item.path);
-                    itemDiv.appendChild(childrenDiv);
-                }
-                
-                container.appendChild(itemDiv);
-            });
-        }
-        
-        function toggleFolder(path) {
-            if (collapsedFolders.has(path)) {
-                collapsedFolders.delete(path);
-            } else {
-                collapsedFolders.add(path);
-            }
-            renderTree();
-        }
-        
-        async function openFile(filepath) {
-            const result = await pywebview.api.read_file(filepath);
-            if (result.success) {
-                currentFilePath = filepath;
-                document.getElementById('editor').value = result.content;
-                document.getElementById('currentFile').textContent = filepath;
-                document.getElementById('saveBtn').disabled = false;
-                renderTree();
-            } else {
-                alert('Error: ' + result.error);
-            }
-        }
-        
-        async function saveCurrentFile() {
-            if (!currentFilePath) return;
-            
-            const content = document.getElementById('editor').value;
-            const result = await pywebview.api.save_file(currentFilePath, content);
-            
-            if (result.success) {
-                const status = document.getElementById('status');
-                status.textContent = '✓ Saved';
-                status.style.display = 'block';
-                setTimeout(() => status.style.display = 'none', 2000);
-            } else {
-                alert('Error: ' + result.error);
-            }
-        }
-        
-        function showContextMenu(e, item) {
+
+        const icon = document.createElement("span");
+        icon.className = "tree-icon";
+        icon.innerHTML = item.type === "folder"
+            ? '<i class="fa-solid fa-folder"></i>'
+            : '<i class="fa-regular fa-file"></i>';
+
+        const label = document.createElement("span");
+        label.className = "tree-label";
+        label.textContent = item.name;
+
+        row.append(arrow, icon, label);
+
+        row.onclick = () => {
+            if (item.type === "file") openFile(item.path);
+        };
+
+        row.oncontextmenu = e => {
+            e.preventDefault();
             contextTarget = item;
-            const menu = document.getElementById('contextMenu');
-            menu.style.display = 'block';
-            menu.style.left = e.pageX + 'px';
-            menu.style.top = e.pageY + 'px';
+        };
+
+        container.appendChild(row);
+
+        if (item.type === "folder" && item.children) {
+            const children = document.createElement("div");
+            children.className = "tree-children";
+            if (collapsedFolders.has(item.path)) children.classList.add("collapsed");
+            renderItems(item.children, children);
+            container.appendChild(children);
         }
-        
-        async function contextAction(action) {
-            document.getElementById('contextMenu').style.display = 'none';
-            
-            if (!contextTarget) return;
-            
-            if (action === 'newFile') {
-                const filename = prompt('Enter file name:');
-                if (filename) {
-                    const parentPath = contextTarget.type === 'folder' ? contextTarget.path : '';
-                    const result = await pywebview.api.create_file(parentPath, filename);
-                    if (result.success) {
-                        await loadFileTree();
-                    } else {
-                        alert('Error: ' + result.error);
-                    }
-                }
-            } else if (action === 'newFolder') {
-                const foldername = prompt('Enter folder name:');
-                if (foldername) {
-                    const parentPath = contextTarget.type === 'folder' ? contextTarget.path : '';
-                    const result = await pywebview.api.create_folder(parentPath, foldername);
-                    if (result.success) {
-                        await loadFileTree();
-                    } else {
-                        alert('Error: ' + result.error);
-                    }
-                }
-            } else if (action === 'rename') {
-                const newName = prompt('Enter new name:', contextTarget.name);
-                if (newName && newName !== contextTarget.name) {
-                    const result = await pywebview.api.rename_item(contextTarget.path, newName);
-                    if (result.success) {
-                        await loadFileTree();
-                    } else {
-                        alert('Error: ' + result.error);
-                    }
-                }
-            } else if (action === 'delete') {
-                if (confirm(`Delete ${contextTarget.name}?`)) {
-                    const result = await pywebview.api.delete_item(contextTarget.path);
-                    if (result.success) {
-                        if (currentFilePath === contextTarget.path) {
-                            currentFilePath = null;
-                            document.getElementById('editor').value = '';
-                            document.getElementById('currentFile').textContent = 'No file open';
-                            document.getElementById('saveBtn').disabled = true;
-                        }
-                        await loadFileTree();
-                    } else {
-                        alert('Error: ' + result.error);
-                    }
-                }
-            }
-        }
-        
-        document.addEventListener('click', () => {
-            document.getElementById('contextMenu').style.display = 'none';
-        });
-        
-        document.getElementById('editor').addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                saveCurrentFile();
-            }
-        });
-    </script>
+    });
+}
+
+function toggleFolder(path) {
+    collapsedFolders.has(path)
+        ? collapsedFolders.delete(path)
+        : collapsedFolders.add(path);
+    renderTree();
+}
+
+async function openFile(path) {
+    const res = await pywebview.api.read_file(path);
+    if (res.success) {
+        currentFilePath = path;
+        editor.value = res.content;
+        currentFile.textContent = path;
+        saveBtn.disabled = false;
+        renderTree();
+    }
+}
+
+async function saveCurrentFile() {
+    if (!currentFilePath) return;
+    const res = await pywebview.api.save_file(currentFilePath, editor.value);
+    if (res.success) {
+        status.textContent = "✓ Saved";
+        status.style.display = "block";
+        setTimeout(() => status.style.display = "none", 1500);
+    }
+}
+
+editor.addEventListener("keydown", e => {
+    if (e.ctrlKey && e.key === "s") {
+        e.preventDefault();
+        saveCurrentFile();
+    }
+});
+</script>
 </body>
 </html>
