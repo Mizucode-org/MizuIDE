@@ -1,5 +1,7 @@
 import webview
 import os
+import sys
+import subprocess
 import json
 import shutil
 from pathlib import Path
@@ -193,6 +195,37 @@ class IDE_API:
             
             os.rename(old_full_path, new_full_path)
             return {"success": True}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def reveal_item(self, filepath):
+        """Reveal file or folder in system explorer"""
+        if not self.current_folder:
+            return {"error": "No folder selected"}
+        
+        try:
+            full_path = os.path.join(self.current_folder, filepath)
+            full_path = os.path.abspath(full_path)
+            
+            if os.name == 'nt':  # Windows
+                subprocess.run(['explorer', '/select,', full_path])
+            elif sys.platform == 'darwin':  # macOS
+                subprocess.run(['open', '-R', full_path])
+            else:  # Linux (xdg-open opens file, doesn't necessarily select. varies)
+                subprocess.run(['xdg-open', os.path.dirname(full_path)])
+                
+            return {"success": True}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def get_full_path(self, filepath):
+        """Get absolute system path for a file"""
+        if not self.current_folder:
+            return {"error": "No folder selected"}
+        
+        try:
+            full_path = os.path.join(self.current_folder, filepath)
+            return {"success": True, "path": os.path.abspath(full_path)}
         except Exception as e:
             return {"error": str(e)}
 

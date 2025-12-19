@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Mizu Code</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
-    <link rel="stylesheet" type="stylesheet" href="/styles.css"/>
+    <link rel="stylesheet" type="stylesheet" href="/styles.css" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
@@ -14,7 +15,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             height: 100vh;
@@ -23,7 +24,7 @@
             background: #1e1e1e;
             color: #cccccc;
         }
-        
+
         .toolbar {
             background: #323233;
             padding: 10px;
@@ -32,7 +33,7 @@
             gap: 10px;
             align-items: center;
         }
-        
+
         button {
             background: #0e639c;
             color: white;
@@ -42,17 +43,17 @@
             cursor: pointer;
             font-size: 13px;
         }
-        
+
         button:hover {
             background: #1177bb;
         }
-        
+
         .container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-        
+
         .sidebar {
             width: 300px;
             background: #252526;
@@ -61,7 +62,7 @@
             flex-direction: column;
             user-select: none;
         }
-        
+
         .sidebar-header {
             padding: 10px;
             background: #323233;
@@ -71,13 +72,13 @@
             letter-spacing: 0.5px;
             color: #cccccc;
         }
-        
+
         .file-tree {
             flex: 1;
             overflow-y: auto;
             padding: 4px 0;
         }
-        
+
         .tree-item {
             display: flex;
             align-items: center;
@@ -86,19 +87,19 @@
             font-size: 13px;
             position: relative;
         }
-        
+
         .tree-item:hover {
             background: #2a2d2e;
         }
-        
+
         .tree-item.active {
             background: #37373d;
         }
-        
+
         .tree-item.selected {
             background: #094771;
         }
-        
+
         .tree-arrow {
             width: 16px;
             height: 16px;
@@ -109,15 +110,15 @@
             transition: transform 0.1s;
             color: #cccccc;
         }
-        
+
         .tree-arrow.collapsed {
             transform: rotate(-90deg);
         }
-        
+
         .tree-arrow.empty {
             opacity: 0;
         }
-        
+
         .tree-icon {
             width: 16px;
             height: 16px;
@@ -126,28 +127,28 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .tree-label {
             flex: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .tree-children {
             margin-left: 16px;
         }
-        
+
         .tree-children.collapsed {
             display: none;
         }
-        
+
         .editor-container {
             flex: 1;
             display: flex;
             flex-direction: column;
         }
-        
+
         .tabs-container {
             display: flex;
             background: #2d2d2d;
@@ -155,7 +156,7 @@
             overflow-x: auto;
             overflow-y: hidden;
         }
-        
+
         .tab {
             display: flex;
             align-items: center;
@@ -168,16 +169,16 @@
             white-space: nowrap;
             user-select: none;
         }
-        
+
         .tab:hover {
             background: #37373d;
         }
-        
+
         .tab.active {
             background: #1e1e1e;
             border-bottom: 2px solid #007acc;
         }
-        
+
         .tab-close {
             display: flex;
             align-items: center;
@@ -187,12 +188,12 @@
             border-radius: 3px;
             opacity: 0.6;
         }
-        
+
         .tab-close:hover {
             background: #5a5a5a;
             opacity: 1;
         }
-        
+
         .editor-header {
             padding: 8px 12px;
             background: #323233;
@@ -202,13 +203,13 @@
             align-items: center;
             font-size: 13px;
         }
-        
+
         .editor-wrapper {
             flex: 1;
             position: relative;
             overflow: hidden;
         }
-        
+
         textarea {
             position: absolute;
             top: 0;
@@ -227,7 +228,7 @@
             outline: none;
             z-index: 2;
         }
-        
+
         .syntax-highlight {
             position: absolute;
             top: 0;
@@ -243,11 +244,11 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
-        
+
         .syntax-highlight code {
             display: block;
         }
-        
+
         .welcome {
             flex: 1;
             display: flex;
@@ -256,80 +257,106 @@
             flex-direction: column;
             gap: 20px;
         }
-        
+
         .welcome h2 {
             color: #888;
             font-weight: 400;
         }
-        
+
         .context-menu {
             position: fixed;
-            background: #3c3c3c;
+            background: #252526;
             border: 1px solid #454545;
-            border-radius: 3px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
             padding: 4px 0;
-            min-width: 200px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            min-width: 250px;
             z-index: 1000;
             display: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-        
+
         .context-menu-item {
-            padding: 6px 20px;
+            padding: 6px 12px;
             cursor: pointer;
             font-size: 13px;
+            color: #cccccc;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .context-menu-item:hover {
             background: #094771;
+            color: #ffffff;
         }
-        
+
+        .context-menu-item.disabled {
+            color: #6c6c6c;
+            pointer-events: none;
+        }
+
         .context-menu-separator {
             height: 1px;
             background: #454545;
             margin: 4px 0;
         }
-        
-        .status {
-            padding: 4px 8px;
-            background: #16825d;
-            border-radius: 2px;
-            font-size: 11px;
+
+        .context-menu-shortcut {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-left: 10px;
         }
-        
+
+        .context-menu-item:hover .context-menu-shortcut {
+            color: #ffffff;
+        }
+
         input.inline-edit {
             background: #3c3c3c;
             border: 1px solid #007acc;
             color: #cccccc;
-            padding: 2px 4px;
-            font-size: 13px;
-            outline: none;
-            font-family: inherit;
+            color: white;
+        }
+
+        .modal-btn-primary {
+            background: #0e639c;
+        }
+
+        .modal-btn-primary:hover {
+            background: #1177bb;
+        }
+
+        .modal-btn-secondary {
+            background: #3c3c3c;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #4b4b4b;
         }
     </style>
 </head>
+
 <body>
     <div class="toolbar">
         <button onclick="selectFolder()">Workspace</button>
         <button onclick="saveCurrentFile()" id="saveBtn" disabled>Save</button>
         <span id="folderName" style="margin-left: auto; font-size: 12px; color: #888;"></span>
     </div>
-    
-    <div class="container">
-        <div class="sidebar">
+
+    <div class="container" id="mainContainer">
+        <div class="sidebar" id="sidebar" style="width: 300px;">
             <div class="sidebar-header">EXPLORER</div>
             <div class="file-tree" id="fileTree"></div>
         </div>
-        
+        <div class="resizer" id="resizer"></div>
+
         <div class="editor-container">
             <div id="welcome" class="welcome">
                 <h2>Mizu Code</h2>
                 <button onclick="selectFolder()">Open Workspace</button>
             </div>
-            
+
             <div id="editorSection" style="display: none; flex: 1; display: flex; flex-direction: column;">
                 <div class="tabs-container" id="tabsContainer"></div>
                 <div class="editor-header">
@@ -343,13 +370,38 @@
             </div>
         </div>
     </div>
-    
+
     <div id="contextMenu" class="context-menu">
         <div class="context-menu-item" onclick="contextAction('newFile')">New File</div>
         <div class="context-menu-item" onclick="contextAction('newFolder')">New Folder</div>
         <div class="context-menu-separator"></div>
-        <div class="context-menu-item" onclick="contextAction('rename')">Rename</div>
-        <div class="context-menu-item" onclick="contextAction('delete')">Delete</div>
+        <div class="context-menu-item" onclick="contextAction('reveal')">Reveal in File Explorer <span
+                class="context-menu-shortcut">Shift+Alt+R</span></div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" onclick="contextAction('copyPath')">Copy Path <span
+                class="context-menu-shortcut">Shift+Alt+C</span></div>
+        <div class="context-menu-item" onclick="contextAction('copyRelativePath')">Copy Relative Path <span
+                class="context-menu-shortcut">Ctrl+K C</span></div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" onclick="contextAction('rename')">Rename <span
+                class="context-menu-shortcut">F2</span></div>
+        <div class="context-menu-item" onclick="contextAction('delete')">Delete <span
+                class="context-menu-shortcut">Delete</span></div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="customModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header" id="modalTitle">Title</div>
+            <div class="modal-content">
+                <p id="modalMessage" class="modal-message"></p>
+                <input type="text" id="modalInput" class="modal-input" spellcheck="false">
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-primary" id="modalConfirmBtn">OK</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -359,28 +411,31 @@
         let collapsedFolders = new Set();
         let openTabs = [];
         let tabContents = {};
-        
+        let workspaceFolder = null;
+
         async function selectFolder() {
             const result = await pywebview.api.select_folder();
             if (result.success) {
                 document.getElementById('folderName').textContent = result.folder;
+                workspaceFolder = result.folder; // Store workspace root
                 document.getElementById('welcome').style.display = 'none';
                 document.getElementById('editorSection').style.display = 'flex';
                 collapsedFolders.clear(); // Reset collapsed state
                 await loadFileTree();
             }
         }
-        
+
         async function loadFileTree() {
             const result = await pywebview.api.get_file_tree();
             if (result.success) {
                 fileTree = result.tree;
+                workspaceFolder = result.folder;
                 // Collapse all folders by default
                 collapseAllFolders(fileTree);
                 renderTree();
             }
         }
-        
+
         function collapseAllFolders(items) {
             items.forEach(item => {
                 if (item.type === 'folder') {
@@ -391,22 +446,33 @@
                 }
             });
         }
-        
+
         function renderTree() {
             const container = document.getElementById('fileTree');
             container.innerHTML = '';
             renderTreeItems(fileTree, container, '');
+
+            // Allow right-click on empty area to create files in root
+            container.oncontextmenu = (e) => {
+                if (e.target === container) {
+                    e.preventDefault();
+                    // Set context target to root (null item effectively, or create a mock root item)
+                    // We'll use a special marker or null
+                    showContextMenu(e, null);
+                }
+            };
         }
-        
+
         function renderTreeItems(items, container, parentPath) {
             items.forEach(item => {
                 const itemDiv = document.createElement('div');
-                
+
                 const itemContent = document.createElement('div');
                 itemContent.className = 'tree-item';
                 itemContent.dataset.path = item.path;
                 itemContent.dataset.type = item.type;
-                
+                itemContent.dataset.name = item.name;
+
                 if (item.type === 'folder') {
                     const arrow = document.createElement('span');
                     arrow.className = 'tree-arrow';
@@ -419,7 +485,7 @@
                         arrow.classList.add('empty');
                     }
                     itemContent.appendChild(arrow);
-                    
+
                     const icon = document.createElement('span');
                     icon.className = 'tree-icon';
                     icon.innerHTML = '<i class="fas fa-folder" style="color: #dcb67a;"></i>';
@@ -428,22 +494,22 @@
                     const emptyArrow = document.createElement('span');
                     emptyArrow.className = 'tree-arrow empty';
                     itemContent.appendChild(emptyArrow);
-                    
+
                     const icon = document.createElement('span');
                     icon.className = 'tree-icon';
                     icon.innerHTML = '<i class="fas fa-file-code" style="color: #519aba;"></i>';
                     itemContent.appendChild(icon);
                 }
-                
+
                 const label = document.createElement('span');
                 label.className = 'tree-label';
                 label.textContent = item.name;
                 itemContent.appendChild(label);
-                
+
                 if (item.path === currentFilePath) {
                     itemContent.classList.add('selected');
                 }
-                
+
                 itemContent.addEventListener('click', (e) => {
                     e.stopPropagation();
                     if (item.type === 'folder') {
@@ -452,14 +518,15 @@
                         openFile(item.path);
                     }
                 });
-                
+
                 itemContent.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
+                    e.stopPropagation(); // Prevent bubbling to container
                     showContextMenu(e, item);
                 });
-                
+
                 itemDiv.appendChild(itemContent);
-                
+
                 if (item.type === 'folder' && item.children) {
                     const childrenDiv = document.createElement('div');
                     childrenDiv.className = 'tree-children';
@@ -469,11 +536,11 @@
                     renderTreeItems(item.children, childrenDiv, item.path);
                     itemDiv.appendChild(childrenDiv);
                 }
-                
+
                 container.appendChild(itemDiv);
             });
         }
-        
+
         function toggleFolder(path) {
             if (collapsedFolders.has(path)) {
                 collapsedFolders.delete(path);
@@ -482,7 +549,7 @@
             }
             renderTree();
         }
-        
+
         function getLanguageFromPath(filepath) {
             const ext = filepath.split('.').pop().toLowerCase();
             const langMap = {
@@ -505,79 +572,79 @@
             };
             return langMap[ext] || 'plaintext';
         }
-        
+
         function updateSyntaxHighlight() {
             const editor = document.getElementById('editor');
             const highlight = document.getElementById('syntaxHighlight');
             const code = editor.value;
             const lang = getLanguageFromPath(currentFilePath || '');
-            
+
             highlight.innerHTML = `<code class="language-${lang}">${escapeHtml(code)}</code>`;
             hljs.highlightElement(highlight.querySelector('code'));
-            
+
             // Sync scroll
             highlight.scrollTop = editor.scrollTop;
             highlight.scrollLeft = editor.scrollLeft;
         }
-        
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-        
+
         function renderTabs() {
             const container = document.getElementById('tabsContainer');
             container.innerHTML = '';
-            
+
             openTabs.forEach(filepath => {
                 const tab = document.createElement('div');
                 tab.className = 'tab';
                 if (filepath === currentFilePath) {
                     tab.classList.add('active');
                 }
-                
+
                 const filename = filepath.split('/').pop();
                 tab.innerHTML = `
                     <span>${filename}</span>
                     <span class="tab-close" onclick="closeTab('${filepath}', event)">✕</span>
                 `;
-                
+
                 tab.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('tab-close')) {
                         switchToTab(filepath);
                     }
                 });
-                
+
                 container.appendChild(tab);
             });
         }
-        
+
         function switchToTab(filepath) {
             // Save current content
             if (currentFilePath) {
                 tabContents[currentFilePath] = document.getElementById('editor').value;
             }
-            
+
             // Switch to new tab
             currentFilePath = filepath;
             document.getElementById('editor').value = tabContents[filepath] || '';
             document.getElementById('currentFile').textContent = filepath;
             document.getElementById('saveBtn').disabled = false;
-            
+
             updateSyntaxHighlight();
             renderTabs();
             renderTree();
         }
-        
+
         function closeTab(filepath, event) {
             event.stopPropagation();
-            
+
             const index = openTabs.indexOf(filepath);
             if (index > -1) {
                 openTabs.splice(index, 1);
                 delete tabContents[filepath];
-                
+
                 if (filepath === currentFilePath) {
                     if (openTabs.length > 0) {
                         const newIndex = Math.min(index, openTabs.length - 1);
@@ -590,19 +657,19 @@
                         updateSyntaxHighlight();
                     }
                 }
-                
+
                 renderTabs();
                 renderTree();
             }
         }
-        
+
         async function openFile(filepath) {
             // If already open, just switch to it
             if (openTabs.includes(filepath)) {
                 switchToTab(filepath);
                 return;
             }
-            
+
             const result = await pywebview.api.read_file(filepath);
             if (result.success) {
                 openTabs.push(filepath);
@@ -612,13 +679,13 @@
                 alert('Error: ' + result.error);
             }
         }
-        
+
         async function saveCurrentFile() {
             if (!currentFilePath) return;
-            
+
             const content = document.getElementById('editor').value;
             const result = await pywebview.api.save_file(currentFilePath, content);
-            
+
             if (result.success) {
                 tabContents[currentFilePath] = content;
                 const status = document.getElementById('status');
@@ -629,24 +696,124 @@
                 alert('Error: ' + result.error);
             }
         }
-        
+
         function showContextMenu(e, item) {
-            contextTarget = item;
+            contextTarget = item; // item is the data object {path, type, name...} or null for root
             const menu = document.getElementById('contextMenu');
             menu.style.display = 'block';
-            menu.style.left = e.pageX + 'px';
-            menu.style.top = e.pageY + 'px';
+
+            // Adjust position to not go off-screen
+            let x = e.pageX;
+            let y = e.pageY;
+
+            // Basic bounds checking (optional, but good)
+            if (x + 250 > window.innerWidth) x = window.innerWidth - 250;
+            if (y + menu.offsetHeight > window.innerHeight) y = window.innerHeight - menu.offsetHeight;
+
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
         }
-        
+
+        // Modal Promise Resolver
+        let modalResolve = null;
+
+        // Resizer Logic
+        const resizer = document.getElementById('resizer');
+        const sidebar = document.getElementById('sidebar');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            resizer.classList.add('resizing');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none'; // Prevent selection while dragging
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const newWidth = e.clientX;
+            if (newWidth > 150 && newWidth < 600) { // Min/Max constraints
+                sidebar.style.width = newWidth + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                resizer.classList.remove('resizing');
+                document.body.style.cursor = 'default';
+                document.body.style.userSelect = 'auto';
+            }
+        });
+
+        // Modal Logic
+        function showInputModal(title, message, defaultValue = '') {
+            return new Promise((resolve) => {
+                modalResolve = resolve;
+                const modal = document.getElementById('customModal');
+                document.getElementById('modalTitle').textContent = title;
+                const msgEl = document.getElementById('modalMessage');
+                if (message) {
+                    msgEl.textContent = message;
+                    msgEl.style.display = 'block';
+                } else {
+                    msgEl.style.display = 'none';
+                }
+
+                const input = document.getElementById('modalInput');
+                input.style.display = 'block';
+                input.value = defaultValue;
+
+                document.getElementById('modalConfirmBtn').onclick = () => {
+                    closeModal(input.value);
+                };
+
+                // Allow enter key to confirm
+                input.onkeydown = (e) => {
+                    if (e.key === 'Enter') closeModal(input.value);
+                    if (e.key === 'Escape') closeModal(null);
+                }
+
+                modal.style.display = 'flex';
+                input.focus();
+            });
+        }
+
+        function showConfirmModal(title, message) {
+            return new Promise((resolve) => {
+                modalResolve = resolve;
+                const modal = document.getElementById('customModal');
+                document.getElementById('modalTitle').textContent = title;
+                document.getElementById('modalMessage').textContent = message;
+                document.getElementById('modalMessage').style.display = 'block';
+                document.getElementById('modalInput').style.display = 'none';
+
+                document.getElementById('modalConfirmBtn').onclick = () => {
+                    closeModal(true);
+                };
+
+                modal.style.display = 'flex';
+            });
+        }
+
+        function closeModal(value = null) {
+            document.getElementById('customModal').style.display = 'none';
+            if (modalResolve) {
+                modalResolve(value);
+                modalResolve = null;
+            }
+        }
+
         async function contextAction(action) {
             document.getElementById('contextMenu').style.display = 'none';
-            
-            if (!contextTarget) return;
-            
+
+            const targetPath = contextTarget ? contextTarget.path : '';
+            const targetType = contextTarget ? contextTarget.type : 'folder'; // treat root as folder
+
             if (action === 'newFile') {
-                const filename = prompt('Enter file name:');
+                const filename = await showInputModal('New File', 'Enter file name:');
                 if (filename) {
-                    const parentPath = contextTarget.type === 'folder' ? contextTarget.path : '';
+                    const parentPath = targetType === 'folder' ? targetPath : targetPath.split('/').slice(0, -1).join('/');
                     const result = await pywebview.api.create_file(parentPath, filename);
                     if (result.success) {
                         await loadFileTree();
@@ -655,9 +822,9 @@
                     }
                 }
             } else if (action === 'newFolder') {
-                const foldername = prompt('Enter folder name:');
+                const foldername = await showInputModal('New Folder', 'Enter folder name:');
                 if (foldername) {
-                    const parentPath = contextTarget.type === 'folder' ? contextTarget.path : '';
+                    const parentPath = targetType === 'folder' ? targetPath : targetPath.split('/').slice(0, -1).join('/');
                     const result = await pywebview.api.create_folder(parentPath, foldername);
                     if (result.success) {
                         await loadFileTree();
@@ -666,7 +833,8 @@
                     }
                 }
             } else if (action === 'rename') {
-                const newName = prompt('Enter new name:', contextTarget.name);
+                if (!contextTarget) return;
+                const newName = await showInputModal('Rename', 'Enter new name:', contextTarget.name);
                 if (newName && newName !== contextTarget.name) {
                     const result = await pywebview.api.rename_item(contextTarget.path, newName);
                     if (result.success) {
@@ -676,33 +844,51 @@
                     }
                 }
             } else if (action === 'delete') {
-                if (confirm(`Delete ${contextTarget.name}?`)) {
+                if (!contextTarget) return;
+                const confirmed = await showConfirmModal('Delete', `Are you sure you want to delete '${contextTarget.name}'?`);
+                if (confirmed) {
                     const result = await pywebview.api.delete_item(contextTarget.path);
                     if (result.success) {
                         if (currentFilePath === contextTarget.path) {
-                            closeTab(contextTarget.path, { stopPropagation: () => {} });
+                            closeTab(contextTarget.path, { stopPropagation: () => { } });
                         }
                         await loadFileTree();
                     } else {
                         alert('Error: ' + result.error);
                     }
                 }
+            } else if (action === 'reveal') {
+                if (!contextTarget) return;
+                await pywebview.api.reveal_item(contextTarget.path);
+            } else if (action === 'copyPath') {
+                if (!contextTarget) return;
+                const result = await pywebview.api.get_full_path(contextTarget.path);
+                if (result.success) {
+                    navigator.clipboard.writeText(result.path);
+                } else {
+                    alert('Error getting path');
+                }
+            } else if (action === 'copyRelativePath') {
+                if (!contextTarget) return;
+                // Assuming Windows user might prefer backslashes if copying path, but relative usually keeps forward slash in webview context.
+                // Let's stick to the path string as is (likely forward slashes from the API/JS).
+                navigator.clipboard.writeText(contextTarget.path);
             }
         }
-        
+
         document.addEventListener('click', () => {
             document.getElementById('contextMenu').style.display = 'none';
         });
-        
+
         const editor = document.getElementById('editor');
         const syntaxHighlight = document.getElementById('syntaxHighlight');
-        
+
         editor.addEventListener('input', updateSyntaxHighlight);
         editor.addEventListener('scroll', () => {
             syntaxHighlight.scrollTop = editor.scrollTop;
             syntaxHighlight.scrollLeft = editor.scrollLeft;
         });
-        
+
         editor.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
@@ -711,4 +897,5 @@
         });
     </script>
 </body>
+
 </html>
