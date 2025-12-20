@@ -18,8 +18,49 @@ class IDE_API:
         )
         if result and len(result) > 0:
             self.current_folder = result[0]
+            self.term_cwd = self.current_folder # Reset terminal cwd
             return {"success": True, "folder": self.current_folder}
         return {"success": False}
+    
+    def terminal_run(self, command):
+        """Run a command in the terminal"""
+        if not self.current_folder:
+             return {"error": "No folder selected"}
+             
+        # Initialize terminal cwd if not set
+        if not hasattr(self, 'term_cwd') or not self.term_cwd:
+            self.term_cwd = self.current_folder
+
+        try:
+            # Handle cd command
+            if command.strip().startswith('cd '):
+                target = command.strip()[3:].strip()
+                # Handle absolute or relative paths
+                new_path = os.path.abspath(os.path.join(self.term_cwd, target))
+                
+                if os.path.exists(new_path) and os.path.isdir(new_path):
+                    self.term_cwd = new_path
+                    return {"success": True, "output": "", "cwd": self.term_cwd}
+                else:
+                    return {"success": True, "output": f"cd: {target}: No such file or directory\n", "cwd": self.term_cwd}
+
+            # Run other commands
+            process = subprocess.run(
+                command, 
+                shell=True, 
+                cwd=self.term_cwd, 
+                capture_output=True, 
+                text=True
+            )
+            
+            output = process.stdout
+            if process.stderr:
+                output += process.stderr
+                
+            return {"success": True, "output": output, "cwd": self.term_cwd}
+            
+        except Exception as e:
+            return {"error": str(e)}
     
     def get_file_tree(self):
         """Get hierarchical file tree structure"""
@@ -236,12 +277,12 @@ with open("index.html", "r", encoding="utf-8") as f:
 if __name__ == '__main__':
     api = IDE_API()
     
-    window = webview.create_window(
-        'Mizu Code',
-        html=html,
-        js_api=api,
-        width=1200,
-        height=800
-    )
-    
-    webview.start(debug=True)
+window = webview.create_window(
+    "Mizu Code",
+    url=f"file://{os.path.join(os.path.dirname(__file__), 'index.html')}",
+    js_api=api,
+    width=1200,
+    height=800
+)
+
+webview.start(debug=True)

@@ -3,7 +3,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             height: 100vh;
@@ -12,7 +12,7 @@
             background: #1e1e1e;
             color: #cccccc;
         }
-        
+
         .toolbar {
             background: #323233;
             padding: 10px;
@@ -21,7 +21,7 @@
             gap: 10px;
             align-items: center;
         }
-        
+
         button {
             background: #0e639c;
             color: white;
@@ -31,17 +31,17 @@
             cursor: pointer;
             font-size: 13px;
         }
-        
+
         button:hover {
             background: #1177bb;
         }
-        
+
         .container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-        
+
         .sidebar {
             width: 300px;
             background: #252526;
@@ -50,7 +50,7 @@
             flex-direction: column;
             user-select: none;
         }
-        
+
         .sidebar-header {
             padding: 10px;
             background: #323233;
@@ -60,13 +60,13 @@
             letter-spacing: 0.5px;
             color: #cccccc;
         }
-        
+
         .file-tree {
             flex: 1;
             overflow-y: auto;
             padding: 4px 0;
         }
-        
+
         .tree-item {
             display: flex;
             align-items: center;
@@ -75,19 +75,19 @@
             font-size: 13px;
             position: relative;
         }
-        
+
         .tree-item:hover {
             background: #2a2d2e;
         }
-        
+
         .tree-item.active {
             background: #37373d;
         }
-        
+
         .tree-item.selected {
             background: #094771;
         }
-        
+
         .tree-arrow {
             width: 16px;
             height: 16px;
@@ -98,15 +98,15 @@
             transition: transform 0.1s;
             color: #cccccc;
         }
-        
+
         .tree-arrow.collapsed {
             transform: rotate(-90deg);
         }
-        
+
         .tree-arrow.empty {
             opacity: 0;
         }
-        
+
         .tree-icon {
             width: 16px;
             height: 16px;
@@ -115,28 +115,28 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .tree-label {
             flex: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .tree-children {
             margin-left: 16px;
         }
-        
+
         .tree-children.collapsed {
             display: none;
         }
-        
+
         .editor-container {
             flex: 1;
             display: flex;
             flex-direction: column;
         }
-        
+
         .tabs-container {
             display: flex;
             background: #2d2d2d;
@@ -144,7 +144,7 @@
             overflow-x: auto;
             overflow-y: hidden;
         }
-        
+
         .tab {
             display: flex;
             align-items: center;
@@ -157,16 +157,16 @@
             white-space: nowrap;
             user-select: none;
         }
-        
+
         .tab:hover {
             background: #37373d;
         }
-        
+
         .tab.active {
             background: #1e1e1e;
             border-bottom: 2px solid #007acc;
         }
-        
+
         .tab-close {
             display: flex;
             align-items: center;
@@ -176,12 +176,12 @@
             border-radius: 3px;
             opacity: 0.6;
         }
-        
+
         .tab-close:hover {
             background: #5a5a5a;
             opacity: 1;
         }
-        
+
         .editor-header {
             padding: 8px 12px;
             background: #323233;
@@ -191,13 +191,13 @@
             align-items: center;
             font-size: 13px;
         }
-        
+
         .editor-wrapper {
             flex: 1;
             position: relative;
             overflow: hidden;
         }
-        
+
         textarea {
             position: absolute;
             top: 0;
@@ -216,7 +216,7 @@
             outline: none;
             z-index: 2;
         }
-        
+
         .syntax-highlight {
             position: absolute;
             top: 0;
@@ -232,11 +232,11 @@
             white-space: pre-wrap;
             word-wrap: break-word;
         }
-        
+
         .syntax-highlight code {
             display: block;
         }
-        
+
         .welcome {
             flex: 1;
             display: flex;
@@ -245,56 +245,93 @@
             flex-direction: column;
             gap: 20px;
         }
-        
+
         .welcome h2 {
             color: #888;
             font-weight: 400;
         }
-        
+
         .context-menu {
             position: fixed;
-            background: #3c3c3c;
+            background: #252526;
             border: 1px solid #454545;
-            border-radius: 3px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
             padding: 4px 0;
-            min-width: 200px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            min-width: 250px;
             z-index: 1000;
             display: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-        
+
         .context-menu-item {
-            padding: 6px 20px;
+            padding: 6px 12px;
             cursor: pointer;
             font-size: 13px;
+            color: #cccccc;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .context-menu-item:hover {
             background: #094771;
+            color: #ffffff;
         }
-        
+
+        .context-menu-item.disabled {
+            color: #6c6c6c;
+            pointer-events: none;
+        }
+
         .context-menu-separator {
             height: 1px;
             background: #454545;
             margin: 4px 0;
         }
-        
-        .status {
-            padding: 4px 8px;
-            background: #16825d;
-            border-radius: 2px;
-            font-size: 11px;
+
+        .context-menu-shortcut {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-left: 10px;
         }
-        
+
+        .context-menu-item:hover .context-menu-shortcut {
+            color: #ffffff;
+        }
+
         input.inline-edit {
             background: #3c3c3c;
             border: 1px solid #007acc;
             color: #cccccc;
-            padding: 2px 4px;
-            font-size: 13px;
-            outline: none;
-            font-family: inherit;
+            color: white;
+        }
+
+        .modal-btn-primary {
+            background: #0e639c;
+        }
+
+        .modal-btn-primary:hover {
+            background: #1177bb;
+        }
+
+        .modal-btn-secondary {
+            background: #3c3c3c;
+        }
+
+        .resizer-v {
+            height: 4px;
+            background: #2b2b2b;
+            cursor: row-resize;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+
+        .resizer-v:hover,
+        .resizer-v.resizing {
+            background: #007acc;
+        }
+        .terminal-input {
+            background: transparent;
+            color: white;
         }

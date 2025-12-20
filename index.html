@@ -6,334 +6,10 @@
     <title>Mizu Code</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
-    <link rel="stylesheet" type="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" type="text/css" href="styles.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: #1e1e1e;
-            color: #cccccc;
-        }
-
-        .toolbar {
-            background: #323233;
-            padding: 10px;
-            border-bottom: 1px solid #2b2b2b;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        button {
-            background: #0e639c;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 2px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        button:hover {
-            background: #1177bb;
-        }
-
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 300px;
-            background: #252526;
-            border-right: 1px solid #2b2b2b;
-            display: flex;
-            flex-direction: column;
-            user-select: none;
-        }
-
-        .sidebar-header {
-            padding: 10px;
-            background: #323233;
-            border-bottom: 1px solid #2b2b2b;
-            font-weight: 600;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-            color: #cccccc;
-        }
-
-        .file-tree {
-            flex: 1;
-            overflow-y: auto;
-            padding: 4px 0;
-        }
-
-        .tree-item {
-            display: flex;
-            align-items: center;
-            padding: 3px 8px;
-            cursor: pointer;
-            font-size: 13px;
-            position: relative;
-        }
-
-        .tree-item:hover {
-            background: #2a2d2e;
-        }
-
-        .tree-item.active {
-            background: #37373d;
-        }
-
-        .tree-item.selected {
-            background: #094771;
-        }
-
-        .tree-arrow {
-            width: 16px;
-            height: 16px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 2px;
-            transition: transform 0.1s;
-            color: #cccccc;
-        }
-
-        .tree-arrow.collapsed {
-            transform: rotate(-90deg);
-        }
-
-        .tree-arrow.empty {
-            opacity: 0;
-        }
-
-        .tree-icon {
-            width: 16px;
-            height: 16px;
-            margin-right: 6px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tree-label {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .tree-children {
-            margin-left: 16px;
-        }
-
-        .tree-children.collapsed {
-            display: none;
-        }
-
-        .editor-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .tabs-container {
-            display: flex;
-            background: #2d2d2d;
-            border-bottom: 1px solid #2b2b2b;
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
-
-        .tab {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: #2d2d2d;
-            border-right: 1px solid #2b2b2b;
-            cursor: pointer;
-            font-size: 13px;
-            white-space: nowrap;
-            user-select: none;
-        }
-
-        .tab:hover {
-            background: #37373d;
-        }
-
-        .tab.active {
-            background: #1e1e1e;
-            border-bottom: 2px solid #007acc;
-        }
-
-        .tab-close {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            border-radius: 3px;
-            opacity: 0.6;
-        }
-
-        .tab-close:hover {
-            background: #5a5a5a;
-            opacity: 1;
-        }
-
-        .editor-header {
-            padding: 8px 12px;
-            background: #323233;
-            border-bottom: 1px solid #2b2b2b;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-        }
-
-        .editor-wrapper {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
-
-        textarea {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            color: transparent;
-            caret-color: white;
-            border: none;
-            padding: 15px;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            resize: none;
-            outline: none;
-            z-index: 2;
-        }
-
-        .syntax-highlight {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 15px;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            overflow: auto;
-            pointer-events: none;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .syntax-highlight code {
-            display: block;
-        }
-
-        .welcome {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .welcome h2 {
-            color: #888;
-            font-weight: 400;
-        }
-
-        .context-menu {
-            position: fixed;
-            background: #252526;
-            border: 1px solid #454545;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            padding: 4px 0;
-            min-width: 250px;
-            z-index: 1000;
-            display: none;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-
-        .context-menu-item {
-            padding: 6px 12px;
-            cursor: pointer;
-            font-size: 13px;
-            color: #cccccc;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .context-menu-item:hover {
-            background: #094771;
-            color: #ffffff;
-        }
-
-        .context-menu-item.disabled {
-            color: #6c6c6c;
-            pointer-events: none;
-        }
-
-        .context-menu-separator {
-            height: 1px;
-            background: #454545;
-            margin: 4px 0;
-        }
-
-        .context-menu-shortcut {
-            font-size: 12px;
-            color: #8c8c8c;
-            margin-left: 10px;
-        }
-
-        .context-menu-item:hover .context-menu-shortcut {
-            color: #ffffff;
-        }
-
-        input.inline-edit {
-            background: #3c3c3c;
-            border: 1px solid #007acc;
-            color: #cccccc;
-            color: white;
-        }
-
-        .modal-btn-primary {
-            background: #0e639c;
-        }
-
-        .modal-btn-primary:hover {
-            background: #1177bb;
-        }
-
-        .modal-btn-secondary {
-            background: #3c3c3c;
-        }
-
-        .modal-btn-secondary:hover {
-            background: #4b4b4b;
-        }
     </style>
 </head>
 
@@ -357,15 +33,35 @@
                 <button onclick="selectFolder()">Open Workspace</button>
             </div>
 
-            <div id="editorSection" style="display: none; flex: 1; display: flex; flex-direction: column;">
+            <div id="editorSection" style="display: none; flex: 1; flex-direction: column; overflow: hidden;">
                 <div class="tabs-container" id="tabsContainer"></div>
                 <div class="editor-header">
                     <span id="currentFile">No file open</span>
                     <span class="status" id="status" style="display: none;"></span>
                 </div>
-                <div class="editor-wrapper">
+                <!-- Editor Wrapper -->
+                <div class="editor-wrapper" id="editorWrapper" style="flex: 1; min-height: 100px;">
                     <div class="syntax-highlight" id="syntaxHighlight"></div>
                     <textarea id="editor" placeholder="Select a file to edit..." spellcheck="false"></textarea>
+                </div>
+
+                <!-- Terminal Section -->
+                <div class="resizer-v" id="termResizer"></div>
+                <div class="terminal-section" id="terminalSection" style="height: 200px;">
+                    <div class="terminal-header">
+                        <span>TERMINAL</span>
+                        <span onclick="clearTerminal()" style="cursor: pointer;" title="Clear"><i
+                                class="fas fa-ban"></i></span>
+                    </div>
+                    <div class="terminal-content" id="termContent"
+                        onclick="document.getElementById('termInput').focus()">
+                        <div class="terminal-output" id="termOutput"></div>
+                        <div class="terminal-input-line">
+                            <span class="terminal-prompt" id="termPrompt">PS ></span>
+                            <input type="text" class="terminal-input" id="termInput" spellcheck="true"
+                                autocomplete="on">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -412,6 +108,120 @@
         let openTabs = [];
         let tabContents = {};
         let workspaceFolder = null;
+        let termHistory = [];
+        let termHistoryIndex = -1;
+
+        // Resizer Logic (Vertical)
+        const termResizer = document.getElementById('termResizer');
+        const terminalSection = document.getElementById('terminalSection');
+        const editorWrapper = document.getElementById('editorWrapper'); // We need to ensure this shrinks/grows? 
+        // Actually Flex box handles editorWrapper resizing if we just set terminalSection height.
+        let isTermResizing = false;
+
+        termResizer.addEventListener('mousedown', (e) => {
+            isTermResizing = true;
+            termResizer.classList.add('resizing');
+            document.body.style.cursor = 'row-resize';
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isTermResizing) return;
+            // Calculate new height from bottom
+            const containerHeight = document.getElementById('editorSection').offsetHeight;
+            const newHeight = containerHeight - (e.clientY - document.getElementById('editorSection').getBoundingClientRect().top);
+
+            if (newHeight > 50 && newHeight < containerHeight - 100) {
+                terminalSection.style.height = newHeight + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isTermResizing) {
+                isTermResizing = false;
+                termResizer.classList.remove('resizing');
+                document.body.style.cursor = 'default';
+                document.body.style.userSelect = 'auto';
+            }
+        });
+
+        // Terminal Logic
+        const termInput = document.getElementById('termInput');
+
+        termInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const command = termInput.value;
+                if (!command.trim()) return;
+
+                // Echo command
+                appendToTerminal(command, true);
+                termInput.value = '';
+
+                // History
+                termHistory.push(command);
+                termHistoryIndex = termHistory.length;
+
+                // Scroll to bottom
+                const contentDiv = document.getElementById('termContent');
+                contentDiv.scrollTop = contentDiv.scrollHeight;
+
+                // Execute
+                try {
+                    const result = await pywebview.api.terminal_run(command);
+                    if (result.success) {
+                        if (result.output) {
+                            appendToTerminal(result.output, false);
+                        }
+                        // Update prompt if cwd changed? We could return cwd in result.
+                        if (result.cwd) {
+                            // shorten prompt if too long?
+                            // let displayPath = result.cwd.split(/[\\/]/).pop();
+                            document.getElementById('termPrompt').textContent = 'PS ' + result.cwd + ' >';
+                        }
+                    } else {
+                        appendToTerminal('Error: ' + result.error, false, true);
+                    }
+                } catch (err) {
+                    appendToTerminal('Error: ' + err, false, true);
+                }
+
+                // Scroll again
+                contentDiv.scrollTop = contentDiv.scrollHeight;
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (termHistoryIndex > 0) {
+                    termHistoryIndex--;
+                    termInput.value = termHistory[termHistoryIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (termHistoryIndex < termHistory.length - 1) {
+                    termHistoryIndex++;
+                    termInput.value = termHistory[termHistoryIndex];
+                } else {
+                    termHistoryIndex = termHistory.length;
+                    termInput.value = '';
+                }
+            }
+        });
+
+        function appendToTerminal(text, isCommand, isError = false) {
+            const outputDiv = document.getElementById('termOutput');
+            const line = document.createElement('div');
+            if (isCommand) {
+                const promptText = document.getElementById('termPrompt').textContent;
+                line.style.color = '#cccccc';
+                line.innerHTML = `<span style="color: #dbd9d9; font-weight: bold; margin-right: 8px;">${promptText}</span>${escapeHtml(text)}`;
+            } else {
+                line.textContent = text;
+                if (isError) line.style.color = '#f48771';
+            }
+            outputDiv.appendChild(line);
+        }
+
+        function clearTerminal() {
+            document.getElementById('termOutput').innerHTML = '';
+        }
 
         async function selectFolder() {
             const result = await pywebview.api.select_folder();
