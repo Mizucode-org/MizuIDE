@@ -8,6 +8,37 @@ import glob
 import time
 import threading
 from pathlib import Path
+import flask
+from flask import Flask, send_from_directory
+
+if getattr(sys, 'frozen', False):
+    base_dir = sys._MEIPASS
+else:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+def get_app_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+app_dir = get_app_dir()
+
+app = Flask(__name__)
+
+@app.route("/theme.css")
+def theme_css():
+    return send_from_directory(app_dir, "styles.css")
+
+def run_css_server():
+    app.run(
+        host="127.0.0.1",
+        port=8765,
+        debug=False,
+        use_reloader=False
+    )
+
+def start_css_server():
+    threading.Thread(target=run_css_server, daemon=True).start()
 
 # Discord RPC - optional dependency
 try:
@@ -15,8 +46,7 @@ try:
     DISCORD_RPC_AVAILABLE = True
 except ImportError:
     DISCORD_RPC_AVAILABLE = False
-    print("[INFO] pypresence not installed. Discord RPC disabled. Install with: pip install pypresence")
-
+    sys.exit(1)
 # Discord Application ID for Mizu Code
 DISCORD_CLIENT_ID = "1319153279399944262"  # You can replace this with your own Discord App ID
 
@@ -520,13 +550,13 @@ class IDE_API:
 with open("index.html", "r", encoding="utf-8") as f:
     html = f.read()
 
-if __name__ == '__main__':
-    api = IDE_API()
-    
-    window = webview.create_window(
+if __name__ == "__main__":
+    start_css_server()
+
+    webview.create_window(
         "Mizu Code",
-        url=f"file://{os.path.join(os.path.dirname(__file__), 'index.html')}",
-        js_api=api,
+        "index.html",   
+        js_api=IDE_API(),
         width=1200,
         height=800
     )
