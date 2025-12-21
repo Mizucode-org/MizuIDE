@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry // Mizu Code</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #000000;
+            --accent-blue: #0044FF;
+            --text-white: #FFFFFF;
+            --text-gray: #A0A0A0;
+            --border-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.8;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-color);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            text-decoration: none;
+            color: var(--text-white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 5%;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 60px;
+        }
+
+        .post-header {
+            margin-bottom: 40px;
+        }
+
+        .post-date {
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        h1 {
+            font-size: 3rem;
+            line-height: 1.1;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        .hero-image-stub {
+            width: 100%;
+            aspect-ratio: 21/9;
+            background: #0A0A0A;
+            border: 1px solid var(--border-color);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #222;
+        }
+
+        .hero-image-stub::after {
+        }
+
+        .content p {
+            margin-bottom: 25px;
+            color: var(--text-gray);
+        }
+
+        .content h2 {
+            margin: 40px 0 20px 0;
+            color: var(--text-white);
+            text-transform: uppercase;
+            border-left: 3px solid var(--accent-blue);
+            padding-left: 15px;
+        }
+
+        code {
+            background: #111;
+            color: var(--accent-blue);
+            padding: 2px 6px;
+        }
+
+        pre {
+            background: #0A0A0A;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .sidebar h4 {
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .sidebar-item {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-item p {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            border: 1px solid var(--text-gray);
+            padding: 2px 8px;
+            color: var(--text-gray);
+        }
+
+        .back-nav {
+            margin-bottom: 40px;
+        }
+
+        .back-nav a {
+            color: var(--text-white);
+            text-decoration: none;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 40px 5%;
+            margin-top: 100px;
+            font-size: 0.8rem;
+            color: var(--text-gray);
+        }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+            .sidebar { order: -1; }
+            h1 { font-size: 2rem; }
+        }
+        .hero-image-stub img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                display: block;
+            }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="../index.html" class="logo">MIZU_CODE</a>
+        <div class="nav-links">
+            <a href="blog.html" style="color: var(--text-gray); text-decoration: none; font-size: 0.8rem;">[ RETURN_TO_BLOG ]</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <main>
+            <div class="back-nav">
+                <a href="blog.html"><i class="fas fa-chevron-left"></i> index/blog/entry_01</a>
+            </div>
+
+            <article>
+                <header class="post-header">
+                    <span class="post-date">Published: Dec 22, 2025 // Alpha_Updates</span>
+                    <h1>Initial release</h1>
+                </header>
+
+                <div class="hero-image-stub">
+                    <img src="../assets/screenshot-int-release.png" alt="Hero Asset Stub" />
+                </div>
+
+                <div class="content">
+                    <p>The industry is currently obsessed with <code>LLM</code> integration. From autocomplete to dedicated AI <code>IDEs</code>, the modern editor is becoming a shell for remote API calls. and <code>NO</code> one asked for that To fix this Mizu code has been release to public</p>
+                    
+<h2>1. Performance Baseline</h2>
+<p>
+This initial release establishes a low-latency editing baseline. The core editor runs without
+background indexing, network requests, or auxiliary services. The goal of v0.0.1 is to measure
+startup time, input responsiveness, and stability before additional features are considered.
+</p>
+
+<h2>2. Manual-First Workflow</h2>
+<p>
+Mizu Code v0.0.1 focuses on direct, intentional coding. The editor provides essential tooling
+such as syntax highlighting, file navigation, and basic debugging support without predictive
+or automated code generation. This release prioritizes clarity and control over assistance.
+</p>
+                </div>
+            </article>
+        </main>
+
+        <aside class="sidebar">
+            <div class="sidebar-item">
+                <h4>Metadata</h4>
+                <p>Reading Time: 4 mins</p>
+                <p>Category: Updates</p>
+                <p>Status: Published</p>
+            </div>
+
+            <div class="sidebar-item">
+                <h4>Tags</h4>
+                <div class="tag-list">
+                    <span class="tag">#RELEASE</span>
+                    <span class="tag">#PERFORMANCE</span>
+                    <span class="tag">#MINIMALISM</span>
+                    <span class="tag">#ALPHA</span>
+                </div>
+            </div>
+
+            <div class="sidebar-item">
+                <h4>Source</h4>
+                <p>Authored by: @mizu_core_team</p>
+                <p>Commit: b85a268</p>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        &copy; 2024 Mizu Code Project // Powered by human intelligence.
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog | Mizu Code</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-color: #000000;
+            --accent-blue: #0044FF;
+            --text-white: #FFFFFF;
+            --text-gray: #A0A0A0;
+            --border-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.6;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-color);
+            z-index: 1000;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            text-decoration: none;
+            color: var(--text-white);
+        }
+
+        .alpha-tag {
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            padding: 2px 8px;
+            font-size: 0.65rem;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 0 5%;
+        }
+
+        .page-header {
+            margin-bottom: 60px;
+            border-left: 4px solid var(--accent-blue);
+            padding-left: 30px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .status-info {
+            color: var(--accent-blue);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .log-entry {
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .log-date {
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .tag-added { background: #FFFFFF; color: #000000; }
+        .tag-fixed { border: 1px solid #FFFFFF; color: #FFFFFF; }
+        .tag-planned { border: 1px solid var(--accent-blue); color: var(--accent-blue); }
+
+        ul {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        li {
+            color: var(--text-gray);
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        li::before {
+            content: "::";
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            color: var(--text-white);
+            text-decoration: none;
+            border: 1px solid var(--text-white);
+            padding: 10px 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .back-link:hover {
+            background: var(--text-white);
+            color: var(--bg-color);
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 60px 5%;
+            margin-top: 100px;
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            footer { flex-direction: column; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo-container">
+            <a href="index.html" class="logo">MIZU_CODE</a>
+            <span class="alpha-tag">SYSTEM_LOGS</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Main_Site</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Changelog</h1>
+            <div class="status-info">Current_Build: v0.0.1-ALPHA</div>
+        </div>
+
+        <div class="log-entry">
+            <span class="log-date">2024.12.21</span>
+            <h2>v0.0.1_Initial_Alpha_Release</h2>
+            <ul>
+                <li><span class="tag tag-added">ADDED</span> Core text rendering engine (No GPU acceleration yet).</li>
+                <li><span class="tag tag-added">ADDED</span> Added custom themes support ( documentation at <a href="docs.mizucode.qzz.io/custom-themes">docs.mizucode.qzz.io/custom-themes</a> )</li>
+                <li><span class="tag tag-added">ADDED</span> Project file tree sidebar (Basic CRUD operations).</li>
+                <li><span class="tag tag-fixed">FIXED</span> Project file tree opening on startup.</li>
+            </ul>
+        </div>
+
+        <div class="log-entry">
+            <span class="log-date">UPCOMING_ROADMAP</span>
+            <h2>Missing_Features_&_Goals</h2>
+            <ul>
+                <li><span class="tag tag-planned">PLANNED</span> Integrated Terminal (Local environment only).</li>
+                <li><span class="tag tag-planned">PLANNED</span> LSP support for C, Rust, and Python.</li>
+                <li><span class="tag tag-planned">PLANNED</span> Plugin system (JavaScript-based, no sandboxing yet).</li>
+                <li><span class="tag tag-planned">PLANNED</span> Multi-cursor support.</li>
+            </ul>
+        </div>
+
+        <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Return_to_Root</a>
+    </div>
+
+    <footer>
+        <div>&copy; 2024 Mizu Code Project</div>
+        <div>STABILITY_PRIORITY_LOW</div>
+    </footer>
+
+</body>
+</html>
