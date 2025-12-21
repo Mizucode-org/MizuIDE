@@ -23,7 +23,7 @@ def get_app_dir():
 
 app_dir = get_app_dir()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=None, template_folder=None)
 
 @app.route("/theme.css")
 def theme_css():
