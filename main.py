@@ -4,12 +4,188 @@ import sys
 import subprocess
 import json
 import shutil
+import glob
+import time
+import threading
 from pathlib import Path
+
+# Discord RPC - optional dependency
+try:
+    from pypresence import Presence
+    DISCORD_RPC_AVAILABLE = True
+except ImportError:
+    DISCORD_RPC_AVAILABLE = False
+    print("[INFO] pypresence not installed. Discord RPC disabled. Install with: pip install pypresence")
+
+# Discord Application ID for Mizu Code
+DISCORD_CLIENT_ID = "1319153279399944262"  # You can replace this with your own Discord App ID
 
 class IDE_API:
     def __init__(self):
         self.current_folder = None
         self.current_file = None
+        self.clipboard_item = None  # Stores {path: relative_path, type: 'file'|'folder'}
+        self.discord_rpc = None
+        self.discord_rpc_enabled = False
+        self.discord_start_time = None
+        self._init_discord_rpc()
+    
+    def _init_discord_rpc(self):
+        """Initialize Discord RPC connection"""
+        if not DISCORD_RPC_AVAILABLE:
+            return
+        
+        try:
+            self.discord_rpc = Presence(DISCORD_CLIENT_ID)
+            self.discord_rpc.connect()
+            self.discord_rpc_enabled = True
+            self.discord_start_time = int(time.time())
+            self._update_discord_presence()
+            print("[INFO] Discord RPC connected successfully")
+        except Exception as e:
+            print(f"[WARN] Failed to connect Discord RPC: {e}")
+            self.discord_rpc = None
+            self.discord_rpc_enabled = False
+    
+    def _update_discord_presence(self, editing_file=None):
+        """Update Discord presence status"""
+        if not self.discord_rpc or not self.discord_rpc_enabled:
+            return
+        
+        try:
+            details = "Idle"
+            state = "No workspace open"
+            
+            if self.current_folder:
+                workspace_name = os.path.basename(self.current_folder)
+                state = f"Workspace: {workspace_name}"
+            
+            if editing_file:
+                filename = os.path.basename(editing_file)
+                details = f"Editing {filename}"
+            elif self.current_folder:
+                details = "Browsing files"
+            
+            self.discord_rpc.update(
+                details=details,
+                state=state,
+                start=self.discord_start_time,
+                large_image="mizu_logo",
+                large_text="Mizu Code IDE",
+                small_image="code_icon",
+                small_text="Coding"
+            )
+        except Exception as e:
+            print(f"[WARN] Failed to update Discord presence: {e}")
+    
+    def toggle_discord_rpc(self, enabled):
+        """Toggle Discord RPC on/off"""
+        if not DISCORD_RPC_AVAILABLE:
+            return {"success": False, "error": "pypresence not installed", "enabled": False}
+        
+        try:
+            if enabled and not self.discord_rpc_enabled:
+                # Enable RPC
+                if not self.discord_rpc:
+                    self.discord_rpc = Presence(DISCORD_CLIENT_ID)
+                    self.discord_rpc.connect()
+                self.discord_rpc_enabled = True
+                self.discord_start_time = int(time.time())
+                self._update_discord_presence(self.current_file)
+                return {"success": True, "enabled": True}
+            elif not enabled and self.discord_rpc_enabled:
+                # Disable RPC
+                if self.discord_rpc:
+                    self.discord_rpc.clear()
+                self.discord_rpc_enabled = False
+                return {"success": True, "enabled": False}
+            return {"success": True, "enabled": self.discord_rpc_enabled}
+        except Exception as e:
+            return {"success": False, "error": str(e), "enabled": self.discord_rpc_enabled}
+    
+    def get_discord_rpc_status(self):
+        """Get current Discord RPC status"""
+        return {
+            "available": DISCORD_RPC_AVAILABLE,
+            "enabled": self.discord_rpc_enabled
+        }
+    
+    def get_available_themes(self):
+        """Get list of available CSS theme files"""
+        try:
+            # Get the directory where main.py is located
+            app_dir = os.path.dirname(os.path.abspath(__file__))
+            css_files = glob.glob(os.path.join(app_dir, "*.css"))
+            
+            themes = []
+            for css_file in css_files:
+                filename = os.path.basename(css_file)
+                # Create a display name from filename
+                display_name = filename.replace('.css', '').replace('_', ' ').replace('-', ' ').title()
+                themes.append({
+                    "filename": filename,
+                    "displayName": display_name,
+                    "isDefault": filename == "styles.css"
+                })
+            
+            # Sort with default first, then alphabetically
+            themes.sort(key=lambda x: (not x["isDefault"], x["displayName"]))
+            return {"success": True, "themes": themes}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def check_theme_exists(self, filename):
+        """Check if a theme file exists"""
+        try:
+            app_dir = os.path.dirname(os.path.abspath(__file__))
+            theme_path = os.path.join(app_dir, filename)
+            return {"exists": os.path.exists(theme_path), "filename": filename}
+        except Exception as e:
+            return {"exists": False, "filename": filename}
+    
+    def _get_config_path(self):
+        """Get path to config file"""
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(app_dir, "mizu_config.json")
+    
+    def save_theme(self, filename):
+        """Save theme preference to config file"""
+        try:
+            config_path = self._get_config_path()
+            config = {}
+            
+            # Load existing config
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+            
+            config['theme'] = filename
+            
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2)
+            
+            return {"success": True, "theme": filename}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def get_saved_theme(self):
+        """Get saved theme from config file"""
+        try:
+            config_path = self._get_config_path()
+            
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    theme = config.get('theme', 'styles.css')
+                    
+                    # Verify theme file exists
+                    app_dir = os.path.dirname(os.path.abspath(__file__))
+                    if os.path.exists(os.path.join(app_dir, theme)):
+                        return {"success": True, "theme": theme}
+            
+            return {"success": True, "theme": "styles.css"}
+        except Exception as e:
+            return {"success": True, "theme": "styles.css"}
     
     def select_folder(self):
         """Open folder selection dialog"""
@@ -221,6 +397,76 @@ class IDE_API:
         except Exception as e:
             return {"error": str(e)}
     
+    def copy_item(self, filepath, item_type):
+        """Copy a file or folder to clipboard"""
+        if not self.current_folder:
+            return {"error": "No folder selected"}
+        
+        try:
+            full_path = os.path.join(self.current_folder, filepath)
+            if not os.path.exists(full_path):
+                return {"error": "Item does not exist"}
+            
+            self.clipboard_item = {
+                "path": filepath,
+                "type": item_type,
+                "name": os.path.basename(filepath)
+            }
+            return {"success": True, "copied": self.clipboard_item["name"]}
+        except Exception as e:
+            return {"error": str(e)}
+    
+    def paste_item(self, target_path):
+        """Paste the copied item to target location"""
+        if not self.current_folder:
+            return {"error": "No folder selected"}
+        
+        if not self.clipboard_item:
+            return {"error": "Nothing to paste"}
+        
+        try:
+            source_full = os.path.join(self.current_folder, self.clipboard_item["path"])
+            
+            if not os.path.exists(source_full):
+                return {"error": "Source item no longer exists"}
+            
+            # Determine destination folder
+            if target_path:
+                target_full = os.path.join(self.current_folder, target_path)
+                if os.path.isfile(target_full):
+                    # If target is a file, paste in its parent directory
+                    dest_folder = os.path.dirname(target_full)
+                else:
+                    dest_folder = target_full
+            else:
+                dest_folder = self.current_folder
+            
+            # Generate unique name if item already exists
+            base_name = self.clipboard_item["name"]
+            dest_path = os.path.join(dest_folder, base_name)
+            
+            if os.path.exists(dest_path):
+                # Generate unique name: name_copy, name_copy_2, etc.
+                name_part, ext = os.path.splitext(base_name) if self.clipboard_item["type"] == "file" else (base_name, "")
+                counter = 1
+                while os.path.exists(dest_path):
+                    if counter == 1:
+                        new_name = f"{name_part}_copy{ext}"
+                    else:
+                        new_name = f"{name_part}_copy_{counter}{ext}"
+                    dest_path = os.path.join(dest_folder, new_name)
+                    counter += 1
+            
+            # Perform copy
+            if self.clipboard_item["type"] == "folder":
+                shutil.copytree(source_full, dest_path)
+            else:
+                shutil.copy2(source_full, dest_path)
+            
+            return {"success": True, "pasted": os.path.basename(dest_path)}
+        except Exception as e:
+            return {"error": str(e)}
+    
     def rename_item(self, old_path, new_name):
         """Rename a file or folder"""
         if not self.current_folder:
@@ -277,12 +523,12 @@ with open("index.html", "r", encoding="utf-8") as f:
 if __name__ == '__main__':
     api = IDE_API()
     
-window = webview.create_window(
-    "Mizu Code",
-    url=f"file://{os.path.join(os.path.dirname(__file__), 'index.html')}",
-    js_api=api,
-    width=1200,
-    height=800
-)
-
-webview.start(debug=True)
+    window = webview.create_window(
+        "Mizu Code",
+        url=f"file://{os.path.join(os.path.dirname(__file__), 'index.html')}",
+        js_api=api,
+        width=1200,
+        height=800
+    )
+    
+    webview.start(debug=True)
