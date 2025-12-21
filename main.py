@@ -530,5 +530,5 @@ if __name__ == '__main__':
         width=1200,
         height=800
     )
-    
+
     webview.start(debug=True)
