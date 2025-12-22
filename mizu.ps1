@@ -1,4 +1,3 @@
-set-location $env:APPDATA
-set-location mizu
-
-./main.exe
+$AppDir = Join-Path $env:APPDATA "mizu"
+Set-Location $AppDir
+.\main.exe

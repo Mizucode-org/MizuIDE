@@ -30,16 +30,26 @@ def theme_css():
     return send_from_directory(app_dir, "styles.css")
 
 def run_css_server():
-    app.run(
-        host="127.0.0.1",
-        port=8765,
-        debug=False,
-        use_reloader=False
-    )
+    """This function contains ONLY the blocking Flask logic."""
+    try:
+        import logging
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
+        
+        app.run(
+            host="127.0.0.1",
+            port=8765,
+            debug=False,
+            use_reloader=False,
+            threaded=True
+        )
+    except Exception as e:
+        print(f"Flask Server Error: {e}")
 
 def start_css_server():
-    threading.Thread(target=run_css_server, daemon=True).start()
-
+    """This is the trigger called by the main block."""
+    daemon_thread = threading.Thread(target=run_css_server, daemon=True)
+    daemon_thread.start()
 # Discord RPC - optional dependency
 try:
     from pypresence import Presence
@@ -47,8 +57,7 @@ try:
 except ImportError:
     DISCORD_RPC_AVAILABLE = False
     sys.exit(1)
-# Discord Application ID for Mizu Code
-DISCORD_CLIENT_ID = "1319153279399944262"  # You can replace this with your own Discord App ID
+DISCORD_CLIENT_ID = "1319153279399944262" 
 
 class IDE_API:
     def __init__(self):
@@ -143,8 +152,8 @@ class IDE_API:
     def get_available_themes(self):
         """Get list of available CSS theme files"""
         try:
-            # Get the directory where main.py is located
-            app_dir = os.path.dirname(os.path.abspath(__file__))
+            # Get the directory where the executable/script is located
+            app_dir = get_app_dir()
             css_files = glob.glob(os.path.join(app_dir, "*.css"))
             
             themes = []
@@ -167,16 +176,14 @@ class IDE_API:
     def check_theme_exists(self, filename):
         """Check if a theme file exists"""
         try:
-            app_dir = os.path.dirname(os.path.abspath(__file__))
-            theme_path = os.path.join(app_dir, filename)
+            theme_path = os.path.join(get_app_dir(), filename)
             return {"exists": os.path.exists(theme_path), "filename": filename}
         except Exception as e:
             return {"exists": False, "filename": filename}
     
     def _get_config_path(self):
         """Get path to config file"""
-        app_dir = os.path.dirname(os.path.abspath(__file__))
-        return os.path.join(app_dir, "mizu_config.json")
+        return os.path.join(get_app_dir(), "mizu_config.json")
     
     def save_theme(self, filename):
         """Save theme preference to config file"""
@@ -209,8 +216,7 @@ class IDE_API:
                     theme = config.get('theme', 'styles.css')
                     
                     # Verify theme file exists
-                    app_dir = os.path.dirname(os.path.abspath(__file__))
-                    if os.path.exists(os.path.join(app_dir, theme)):
+                    if os.path.exists(os.path.join(get_app_dir(), theme)):
                         return {"success": True, "theme": theme}
             
             return {"success": True, "theme": "styles.css"}
@@ -547,7 +553,7 @@ class IDE_API:
             return {"error": str(e)}
 
 
-with open("index.html", "r", encoding="utf-8") as f:
+with open(os.path.join(base_dir, "index.html"), "r", encoding="utf-8") as f:
     html = f.read()
 
 if __name__ == "__main__":
@@ -555,10 +561,10 @@ if __name__ == "__main__":
 
     webview.create_window(
         "Mizu Code",
-        "index.html",   
+        os.path.join(base_dir, "index.html"),
         js_api=IDE_API(),
         width=1200,
         height=800
     )
 
-    webview.start(debug=True)
+    webview.start()
