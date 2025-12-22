@@ -481,3 +481,22 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #3a3a3a;
         }
+        /* fixing the modal-message not centering properly */
+        .modal-overlay {
+            position: fixed;
+            inset: 0; /* top:0 right:0 bottom:0 left:0 without the essay */
+            display: flex;
+            align-items: center;      /* vertical center */
+            justify-content: center;  /* horizontal center */
+            background: rgba(0, 0, 0, 0.5); /* optional but sane */
+            z-index: 9999;
+        }
+
+        .modal {
+            background: #1e1e1e;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            min-width: 320px;
+            max-width: 90vw;
+        }
