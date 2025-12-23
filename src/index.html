@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <title>Mizu Code</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
     <link rel="stylesheet" type="text/css" href="http://127.0.0.1:8765/theme.css" id="themeStylesheet">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
 </head>
 
 <body>
@@ -37,10 +36,8 @@
                     <span id="currentFile">No file open</span>
                     <span class="status" id="status" style="display: none;"></span>
                 </div>
-                <!-- Editor Wrapper -->
-                <div class="editor-wrapper" id="editorWrapper" style="flex: 1; min-height: 100px;">
-                    <div class="syntax-highlight" id="syntaxHighlight"></div>
-                    <textarea id="editor" placeholder="Select a file to edit..." spellcheck="false"></textarea>
+                <!-- Editor Container - CodeMirror 6 will mount here -->
+                <div class="editor-wrapper" id="editorWrapper" style="flex: 1; min-height: 100px; overflow: hidden;">
                 </div>
 
                 <!-- Terminal Section -->
@@ -116,7 +113,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 
 </html>
