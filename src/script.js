@@ -123,31 +123,74 @@ let currentTheme = 'styles.css';
 
 // === Terminal Output Limiter ===
 const MAX_TERMINAL_LINES = 500;
+let terminalSession = [];
+
 function trimTerminalOutput() {
     if (DOM.termOutput && DOM.termOutput.children.length > MAX_TERMINAL_LINES) {
         const excess = DOM.termOutput.children.length - MAX_TERMINAL_LINES;
         for (let i = 0; i < excess; i++) {
             DOM.termOutput.removeChild(DOM.termOutput.firstChild);
+            terminalSession.shift();
         }
     }
 }
 
-function appendToTerminal(text, isCommand, isError = false) {
-    const line = document.createElement('div');
-    if (isCommand) {
-        const promptText = DOM.termPrompt.textContent;
-        line.style.color = '#cccccc';
-        line.innerHTML = `<span style="color: #dbd9d9; font-weight: bold; margin-right: 8px;">${promptText}</span>${escapeHtml(text)}`;
-    } else {
-        line.textContent = text;
-        if (isError) line.style.color = '#f48771';
+function formatTerminalOutput(text) {
+    // Handle code blocks with backticks
+    if (text.includes('```')) {
+        return text.replace(/```([^`]*?)```/g, (match, code) => {
+            return `<pre style="background: #1e1e2e; padding: 8px; border-radius: 4px; margin: 4px 0; overflow-x: auto; color: #a6acaf;">${escapeHtml(code)}</pre>`;
+        });
     }
-    DOM.termOutput.appendChild(line);
+    return escapeHtml(text);
+}
+
+function appendToTerminal(text, isCommand, isError = false, isStderr = false) {
+    if (!text) return;
+    
+    // Handle multiple lines
+    const lines = text.split('\n');
+    
+    lines.forEach((line, index) => {
+        if (!line && index === lines.length - 1) return; // Skip last empty line
+        
+        const lineEl = document.createElement('div');
+        lineEl.style.wordWrap = 'break-word';
+        lineEl.style.whiteSpace = 'pre-wrap';
+        lineEl.style.fontFamily = 'Consolas, Monaco, "Courier New", monospace';
+        
+        if (isCommand) {
+            const promptText = DOM.termPrompt.textContent;
+            lineEl.style.color = '#cccccc';
+            lineEl.innerHTML = `<span style="color: #dbd9d9; font-weight: bold; margin-right: 8px;">${promptText}</span><span style="color: #61dafb;">${escapeHtml(line)}</span>`;
+        } else {
+            if (isError || isStderr) {
+                lineEl.style.color = '#ff7b72';
+                lineEl.innerHTML = escapeHtml(line);
+            } else {
+                lineEl.style.color = '#a6acaf';
+                lineEl.innerHTML = formatTerminalOutput(line);
+            }
+        }
+        
+        DOM.termOutput.appendChild(lineEl);
+        terminalSession.push({
+            text: line,
+            isCommand: isCommand,
+            isError: isError || isStderr
+        });
+    });
+    
     trimTerminalOutput();
 }
 
 function clearTerminal() {
     DOM.termOutput.innerHTML = '';
+    terminalSession = [];
+}
+
+function getTerminalHistory() {
+    return terminalSession;
 }
 
 // === Language Extensions Map for CodeMirror ===
@@ -272,15 +315,6 @@ const COMMANDS = [
         shortcut: 'Ctrl+Shift+R',
         category: 'View',
         action: () => location.reload()
-    },
-    {
-        id: 'discord_toggle',
-        icon: 'fa-gamepad',
-        label: 'Toggle Discord Rich Presence',
-        shortcut: '',
-        category: 'Preferences',
-        action: toggleDiscordRpc,
-        getBadge: () => discordRpcEnabled ? { text: 'ON', class: '' } : { text: 'OFF', class: 'off' }
     },
     {
         id: 'new_file',
@@ -475,29 +509,6 @@ function executeSelectedCommand() {
     }
 }
 
-async function toggleDiscordRpc() {
-    closeCommandPalette();
-    try {
-        const result = await pywebview.api.toggle_discord_rpc(!discordRpcEnabled);
-        if (result.success) {
-            discordRpcEnabled = result.enabled;
-            showStatus(`Discord RPC ${discordRpcEnabled ? 'enabled' : 'disabled'}`);
-        } else {
-            showStatus('Discord RPC: ' + (result.error || 'Error'));
-        }
-    } catch (e) {
-        showStatus('Discord RPC not available');
-    }
-}
-
-async function initDiscordRpcStatus() {
-    try {
-        const result = await pywebview.api.get_discord_rpc_status();
-        discordRpcEnabled = result.enabled;
-    } catch (e) {
-        discordRpcEnabled = false;
-    }
-}
 
 function showStatus(message) {
     DOM.status.textContent = message;
@@ -940,6 +951,7 @@ window.saveCurrentFile = saveCurrentFile;
 window.clearTerminal = clearTerminal;
 window.contextAction = contextAction;
 window.closeModal = closeModal;
+window.getTerminalHistory = getTerminalHistory;
 
 // === Initialize everything when DOM is ready ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -997,11 +1009,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Terminal input
+    // Terminal input - Enhanced with better formatting and shortcuts
     DOM.termInput.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter') {
-            const command = DOM.termInput.value;
-            if (!command.trim()) return;
+            const command = DOM.termInput.value.trim();
+            if (!command) return;
 
             appendToTerminal(command, true);
             DOM.termInput.value = '';
@@ -1013,27 +1025,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const result = await pywebview.api.terminal_run(command);
-                if (result.success) {
-                    if (result.output) {
-                        appendToTerminal(result.output, false);
-                    }
-                    if (result.cwd) {
-                        DOM.termPrompt.textContent = 'PS ' + result.cwd + ' >';
-                    }
+                
+                // Handle clear command
+                if (result.clear) {
+                    clearTerminal();
                 } else {
-                    appendToTerminal('Error: ' + result.error, false, true);
+                    // Display output with proper formatting
+                    if (result.output) {
+                        appendToTerminal(result.output, false, result.isError || false);
+                    }
+                    if (result.stderr) {
+                        appendToTerminal(result.stderr, false, true, true);
+                    }
                 }
+                
+                // Update prompt with current working directory
+                if (result.cwd) {
+                    const shortCwd = result.cwd.length > 40 ? 
+                        '...' + result.cwd.slice(-37) : result.cwd;
+                    DOM.termPrompt.textContent = 'PS ' + shortCwd + ' >';
+                }
+                
             } catch (err) {
-                appendToTerminal('Error: ' + err, false, true);
+                appendToTerminal(`Error: ${err}`, false, true);
             }
 
             DOM.termContent.scrollTop = DOM.termContent.scrollHeight;
+            
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             if (termHistoryIndex > 0) {
                 termHistoryIndex--;
                 DOM.termInput.value = termHistory[termHistoryIndex];
             }
+            
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             if (termHistoryIndex < termHistory.length - 1) {
@@ -1042,6 +1067,39 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 termHistoryIndex = termHistory.length;
                 DOM.termInput.value = '';
+            }
+            
+        } else if (e.key === 'Tab') {
+            // Tab completion support
+            e.preventDefault();
+            const currentValue = DOM.termInput.value;
+            const lastSpace = currentValue.lastIndexOf(' ');
+            const prefix = lastSpace === -1 ? currentValue : currentValue.slice(lastSpace + 1);
+            
+            if (prefix) {
+                // Simple path/command completion
+                DOM.termInput.value = currentValue + '\t';
+            }
+            
+        } else if (e.ctrlKey && e.key === 'c') {
+            // Ctrl+C - Clear current input or cancel process
+            e.preventDefault();
+            DOM.termInput.value = '';
+            appendToTerminal('Cancelled', true);
+            
+        } else if (e.ctrlKey && e.key === 'l') {
+            // Ctrl+L - Clear terminal (like bash)
+            e.preventDefault();
+            clearTerminal();
+            
+        } else if (e.key === 'Delete') {
+            // Delete key support
+            if (DOM.termInput.selectionStart === DOM.termInput.selectionEnd) {
+                const pos = DOM.termInput.selectionStart;
+                const val = DOM.termInput.value;
+                DOM.termInput.value = val.slice(0, pos) + val.slice(pos + 1);
+                DOM.termInput.selectionStart = DOM.termInput.selectionEnd = pos;
+                e.preventDefault();
             }
         }
     });
@@ -1092,6 +1150,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     DOM.commandPaletteInput.addEventListener('keydown', handleCommandPaletteKeydown);
 
-    loadSavedTheme();
-    initDiscordRpcStatus();
+    
 });

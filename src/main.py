@@ -10,6 +10,7 @@ import threading
 from pathlib import Path
 import flask
 from flask import Flask, send_from_directory
+from pypresence import Presence
 
 if getattr(sys, 'frozen', False):
     base_dir = sys._MEIPASS
@@ -51,177 +52,14 @@ def start_css_server():
     daemon_thread = threading.Thread(target=run_css_server, daemon=True)
     daemon_thread.start()
 # Discord RPC - optional dependency
-try:
-    from pypresence import Presence
-    DISCORD_RPC_AVAILABLE = True
-except ImportError:
-    DISCORD_RPC_AVAILABLE = False
-    sys.exit(1)
-DISCORD_CLIENT_ID = "1319153279399944262" 
 
 class IDE_API:
     def __init__(self):
         self.current_folder = None
         self.current_file = None
         self.clipboard_item = None  # Stores {path: relative_path, type: 'file'|'folder'}
-        self.discord_rpc = None
-        self.discord_rpc_enabled = False
-        self.discord_start_time = None
-        self._init_discord_rpc()
-    
-    def _init_discord_rpc(self):
-        """Initialize Discord RPC connection"""
-        if not DISCORD_RPC_AVAILABLE:
-            return
-        
-        try:
-            self.discord_rpc = Presence(DISCORD_CLIENT_ID)
-            self.discord_rpc.connect()
-            self.discord_rpc_enabled = True
-            self.discord_start_time = int(time.time())
-            self._update_discord_presence()
-            print("[INFO] Discord RPC connected successfully")
-        except Exception as e:
-            print(f"[WARN] Failed to connect Discord RPC: {e}")
-            self.discord_rpc = None
-            self.discord_rpc_enabled = False
-    
-    def _update_discord_presence(self, editing_file=None):
-        """Update Discord presence status"""
-        if not self.discord_rpc or not self.discord_rpc_enabled:
-            return
-        
-        try:
-            details = "Idle"
-            state = "No workspace open"
-            
-            if self.current_folder:
-                workspace_name = os.path.basename(self.current_folder)
-                state = f"Workspace: {workspace_name}"
-            
-            if editing_file:
-                filename = os.path.basename(editing_file)
-                details = f"Editing {filename}"
-            elif self.current_folder:
-                details = "Browsing files"
-            
-            self.discord_rpc.update(
-                details=details,
-                state=state,
-                start=self.discord_start_time,
-                large_image="mizu_logo",
-                large_text="Mizu Code IDE",
-                small_image="code_icon",
-                small_text="Coding"
-            )
-        except Exception as e:
-            print(f"[WARN] Failed to update Discord presence: {e}")
-    
-    def toggle_discord_rpc(self, enabled):
-        """Toggle Discord RPC on/off"""
-        if not DISCORD_RPC_AVAILABLE:
-            return {"success": False, "error": "pypresence not installed", "enabled": False}
-        
-        try:
-            if enabled and not self.discord_rpc_enabled:
-                # Enable RPC
-                if not self.discord_rpc:
-                    self.discord_rpc = Presence(DISCORD_CLIENT_ID)
-                    self.discord_rpc.connect()
-                self.discord_rpc_enabled = True
-                self.discord_start_time = int(time.time())
-                self._update_discord_presence(self.current_file)
-                return {"success": True, "enabled": True}
-            elif not enabled and self.discord_rpc_enabled:
-                # Disable RPC
-                if self.discord_rpc:
-                    self.discord_rpc.clear()
-                self.discord_rpc_enabled = False
-                return {"success": True, "enabled": False}
-            return {"success": True, "enabled": self.discord_rpc_enabled}
-        except Exception as e:
-            return {"success": False, "error": str(e), "enabled": self.discord_rpc_enabled}
-    
-    def get_discord_rpc_status(self):
-        """Get current Discord RPC status"""
-        return {
-            "available": DISCORD_RPC_AVAILABLE,
-            "enabled": self.discord_rpc_enabled
-        }
-    
-    def get_available_themes(self):
-        """Get list of available CSS theme files"""
-        try:
-            # Get the directory where the executable/script is located
-            app_dir = get_app_dir()
-            css_files = glob.glob(os.path.join(app_dir, "*.css"))
-            
-            themes = []
-            for css_file in css_files:
-                filename = os.path.basename(css_file)
-                # Create a display name from filename
-                display_name = filename.replace('.css', '').replace('_', ' ').replace('-', ' ').title()
-                themes.append({
-                    "filename": filename,
-                    "displayName": display_name,
-                    "isDefault": filename == "styles.css"
-                })
-            
-            # Sort with default first, then alphabetically
-            themes.sort(key=lambda x: (not x["isDefault"], x["displayName"]))
-            return {"success": True, "themes": themes}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    def check_theme_exists(self, filename):
-        """Check if a theme file exists"""
-        try:
-            theme_path = os.path.join(get_app_dir(), filename)
-            return {"exists": os.path.exists(theme_path), "filename": filename}
-        except Exception as e:
-            return {"exists": False, "filename": filename}
-    
-    def _get_config_path(self):
-        """Get path to config file"""
-        return os.path.join(get_app_dir(), "mizu_config.json")
-    
-    def save_theme(self, filename):
-        """Save theme preference to config file"""
-        try:
-            config_path = self._get_config_path()
-            config = {}
-            
-            # Load existing config
-            if os.path.exists(config_path):
-                with open(config_path, 'r', encoding='utf-8') as f:
-                    config = json.load(f)
-            
-            config['theme'] = filename
-            
-            with open(config_path, 'w', encoding='utf-8') as f:
-                json.dump(config, f, indent=2)
-            
-            return {"success": True, "theme": filename}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    def get_saved_theme(self):
-        """Get saved theme from config file"""
-        try:
-            config_path = self._get_config_path()
-            
-            if os.path.exists(config_path):
-                with open(config_path, 'r', encoding='utf-8') as f:
-                    config = json.load(f)
-                    theme = config.get('theme', 'styles.css')
-                    
-                    # Verify theme file exists
-                    if os.path.exists(os.path.join(get_app_dir(), theme)):
-                        return {"success": True, "theme": theme}
-            
-            return {"success": True, "theme": "styles.css"}
-        except Exception as e:
-            return {"success": True, "theme": "styles.css"}
+        self.term_cwd = None
+        self.active_process = None  # Store currently running process
     
     def select_folder(self):
         """Open folder selection dialog"""
@@ -232,48 +70,129 @@ class IDE_API:
             self.current_folder = result[0]
             self.term_cwd = self.current_folder # Reset terminal cwd
             return {"success": True, "folder": self.current_folder}
+
         return {"success": False}
     
     def terminal_run(self, command):
-        """Run a command in the terminal"""
+        """Execute terminal commands with better formatting and session support"""
         if not self.current_folder:
-             return {"error": "No folder selected"}
-             
-        # Initialize terminal cwd if not set
-        if not hasattr(self, 'term_cwd') or not self.term_cwd:
+            return {"error": "No folder selected"}
+
+        if not self.term_cwd:
             self.term_cwd = self.current_folder
 
         try:
-            # Handle cd command
-            if command.strip().startswith('cd '):
-                target = command.strip()[3:].strip()
-                # Handle absolute or relative paths
-                new_path = os.path.abspath(os.path.join(self.term_cwd, target))
-                
-                if os.path.exists(new_path) and os.path.isdir(new_path):
-                    self.term_cwd = new_path
-                    return {"success": True, "output": "", "cwd": self.term_cwd}
-                else:
-                    return {"success": True, "output": f"cd: {target}: No such file or directory\n", "cwd": self.term_cwd}
+            cmd = command.strip()
+            
+            # Handle 'cls' and 'clear' commands
+            if cmd.lower() in ['cls', 'clear']:
+                return {
+                    "success": True,
+                    "output": "",
+                    "cwd": self.term_cwd,
+                    "clear": True
+                }
+            
+            # Handle 'exit' command
+            if cmd.lower() in ['exit', 'quit']:
+                return {
+                    "success": True,
+                    "output": "Exiting terminal...\n",
+                    "cwd": self.term_cwd
+                }
 
-            # Run other commands
-            process = subprocess.run(
-                command, 
-                shell=True, 
-                cwd=self.term_cwd, 
-                capture_output=True, 
-                text=True
+            # Handle cd command (built-in)
+            if cmd.startswith("cd "):
+                target = cmd[3:].strip().strip('"').strip("'")
+                new_path = os.path.abspath(os.path.join(self.term_cwd, target))
+
+                if os.path.isdir(new_path):
+                    self.term_cwd = new_path
+                    return {
+                        "success": True,
+                        "output": "",
+                        "cwd": self.term_cwd
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "output": f"cd: {target}: No such directory\n",
+                        "cwd": self.term_cwd,
+                        "isError": True
+                    }
+
+            # Handle pwd command (built-in)
+            if cmd.lower() in ['pwd', 'cd']:
+                return {
+                    "success": True,
+                    "output": f"{self.term_cwd}\n",
+                    "cwd": self.term_cwd
+                }
+
+            # Detect PowerShell properly
+            shell_exe = "pwsh" if shutil.which("pwsh") else "powershell"
+
+            # Execute command with proper output handling
+            process = subprocess.Popen(
+                [shell_exe, "-NoProfile", "-Command", command],
+                cwd=self.term_cwd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1
             )
             
-            output = process.stdout
-            if process.stderr:
-                output += process.stderr
-                
-            return {"success": True, "output": output, "cwd": self.term_cwd}
+            self.active_process = process
             
+            # Collect output
+            stdout, stderr = process.communicate(timeout=30)
+            self.active_process = None
+            
+            output = stdout or ""
+            error_output = stderr or ""
+
+            # Format output with proper line endings
+            if output and not output.endswith('\n'):
+                output += '\n'
+            
+            return {
+                "success": process.returncode == 0,
+                "output": output,
+                "stderr": error_output,
+                "cwd": self.term_cwd,
+                "returnCode": process.returncode,
+                "isError": process.returncode != 0
+            }
+
+        except subprocess.TimeoutExpired:
+            if self.active_process:
+                self.active_process.kill()
+                self.active_process = None
+            return {
+                "success": False,
+                "output": "Command timed out (30s limit)\n",
+                "cwd": self.term_cwd,
+                "isError": True
+            }
         except Exception as e:
-            return {"error": str(e)}
+            self.active_process = None
+            return {
+                "success": False,
+                "output": f"Error: {str(e)}\n",
+                "cwd": self.term_cwd,
+                "isError": True
+            }
     
+    def terminal_cancel(self):
+        """Cancel the currently running process"""
+        if self.active_process:
+            try:
+                self.active_process.terminate()
+                self.active_process = None
+                return {"success": True, "output": "Process terminated\n"}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        
     def get_file_tree(self):
         """Get hierarchical file tree structure"""
         if not self.current_folder:
