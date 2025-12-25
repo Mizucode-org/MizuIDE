@@ -1023,6 +1023,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             DOM.termContent.scrollTop = DOM.termContent.scrollHeight;
 
+            if (command === 'debug-theme-enable') {
+                toggleDebugTheme();
+                return;
+            }
+
             try {
                 const result = await pywebview.api.terminal_run(command);
                 
@@ -1152,3 +1157,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
 });
+function toggleDebugTheme() {
+    const enabled = document.body.classList.toggle("debug");
+
+    console.warn(
+        enabled ? "Debug Theme Enabled" : "Debug Theme Disabled"
+    );
+}
