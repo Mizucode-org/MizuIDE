@@ -121,6 +121,9 @@ let commandPaletteSelectedIndex = 0;
 let discordRpcEnabled = true;
 let currentTheme = 'styles.css';
 
+// === Editor Zoom State ===
+let editorFontSize = 14;
+
 // === Terminal Output Limiter ===
 const MAX_TERMINAL_LINES = 500;
 let terminalSession = [];
@@ -147,18 +150,18 @@ function formatTerminalOutput(text) {
 
 function appendToTerminal(text, isCommand, isError = false, isStderr = false) {
     if (!text) return;
-    
+
     // Handle multiple lines
     const lines = text.split('\n');
-    
+
     lines.forEach((line, index) => {
         if (!line && index === lines.length - 1) return; // Skip last empty line
-        
+
         const lineEl = document.createElement('div');
         lineEl.style.wordWrap = 'break-word';
         lineEl.style.whiteSpace = 'pre-wrap';
         lineEl.style.fontFamily = 'Consolas, Monaco, "Courier New", monospace';
-        
+
         if (isCommand) {
             const promptText = DOM.termPrompt.textContent;
             lineEl.style.color = '#cccccc';
@@ -172,7 +175,7 @@ function appendToTerminal(text, isCommand, isError = false, isStderr = false) {
                 lineEl.innerHTML = formatTerminalOutput(line);
             }
         }
-        
+
         DOM.termOutput.appendChild(lineEl);
         terminalSession.push({
             text: line,
@@ -180,7 +183,7 @@ function appendToTerminal(text, isCommand, isError = false, isStderr = false) {
             isError: isError || isStderr
         });
     });
-    
+
     trimTerminalOutput();
 }
 
@@ -234,6 +237,28 @@ function getLanguageExtension(path) {
         }
     }
     return [];
+}
+
+// === Editor Zoom Logic ===
+function initEditorZoom() {
+    if (!DOM.editorWrapper) return;
+
+    DOM.editorWrapper.addEventListener('wheel', (e) => {
+        // Only act when Ctrl is held (zoom)
+        if (e.ctrlKey) {
+            e.preventDefault(); // Stop browser page zoom
+
+            // Negative deltaY is scrolling up (zoom in), positive is down (zoom out)
+            const delta = e.deltaY > 0 ? -1 : 1;
+
+            const MIN_FONT = 10;
+            const MAX_FONT = 32;
+
+            editorFontSize = Math.min(Math.max(editorFontSize + delta, MIN_FONT), MAX_FONT);
+
+            DOM.editorWrapper.style.setProperty('--editor-font-size', `${editorFontSize}px`);
+        }
+    }, { passive: false }); // passive: false needed to use preventDefault
 }
 
 // === CodeMirror Editor Creation ===
@@ -960,6 +985,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create initial empty editor
     createEditorOnce();
 
+    // Initialize Editor Zoom
+    initEditorZoom();
+
     // Terminal Resizer
     DOM.termResizer.addEventListener('mousedown', (e) => {
         isTermResizing = true;
@@ -1030,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const result = await pywebview.api.terminal_run(command);
-                
+
                 // Handle clear command
                 if (result.clear) {
                     clearTerminal();
@@ -1043,27 +1071,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         appendToTerminal(result.stderr, false, true, true);
                     }
                 }
-                
+
                 // Update prompt with current working directory
                 if (result.cwd) {
-                    const shortCwd = result.cwd.length > 40 ? 
+                    const shortCwd = result.cwd.length > 40 ?
                         '...' + result.cwd.slice(-37) : result.cwd;
                     DOM.termPrompt.textContent = 'PS ' + shortCwd + ' >';
                 }
-                
+
             } catch (err) {
                 appendToTerminal(`Error: ${err}`, false, true);
             }
 
             DOM.termContent.scrollTop = DOM.termContent.scrollHeight;
-            
+
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             if (termHistoryIndex > 0) {
                 termHistoryIndex--;
                 DOM.termInput.value = termHistory[termHistoryIndex];
             }
-            
+
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             if (termHistoryIndex < termHistory.length - 1) {
@@ -1073,30 +1101,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 termHistoryIndex = termHistory.length;
                 DOM.termInput.value = '';
             }
-            
+
         } else if (e.key === 'Tab') {
             // Tab completion support
             e.preventDefault();
             const currentValue = DOM.termInput.value;
             const lastSpace = currentValue.lastIndexOf(' ');
             const prefix = lastSpace === -1 ? currentValue : currentValue.slice(lastSpace + 1);
-            
+
             if (prefix) {
                 // Simple path/command completion
                 DOM.termInput.value = currentValue + '\t';
             }
-            
+
         } else if (e.ctrlKey && e.key === 'c') {
             // Ctrl+C - Clear current input or cancel process
             e.preventDefault();
             DOM.termInput.value = '';
             appendToTerminal('Cancelled', true);
-            
+
         } else if (e.ctrlKey && e.key === 'l') {
             // Ctrl+L - Clear terminal (like bash)
             e.preventDefault();
             clearTerminal();
-            
+
         } else if (e.key === 'Delete') {
             // Delete key support
             if (DOM.termInput.selectionStart === DOM.termInput.selectionEnd) {
@@ -1155,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     DOM.commandPaletteInput.addEventListener('keydown', handleCommandPaletteKeydown);
 
-    
+
 });
 function toggleDebugTheme() {
     const enabled = document.body.classList.toggle("debug");

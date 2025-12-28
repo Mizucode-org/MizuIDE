@@ -36,19 +36,57 @@ body.debug .version-bar::after {
 }
 
 /* labels */
-body.debug .toolbar::after            { content: "#toolbar"; }
-body.debug .sidebar::after            { content: "#sidebar"; }
-body.debug .sidebar-header::after     { content: "#sidebar-header"; }
-body.debug .file-tree::after          { content: "#file-tree"; }
-body.debug .editor-container::after   { content: "#editor-container"; }
-body.debug .tabs-container::after     { content: "#tabs-container"; }
-body.debug .editor-header::after      { content: "#editor-header"; }
-body.debug .editor-wrapper::after     { content: "#editor-wrapper"; }
-body.debug .terminal-section::after   { content: "#terminal"; }
-body.debug .command-palette::after    { content: "#command-palette"; }
-body.debug .context-menu::after       { content: "#context-menu"; }
-body.debug .welcome::after            { content: "#welcome"; }
-body.debug .version-bar::after        { content: "#version-bar"; }
+body.debug .toolbar::after {
+    content: "#toolbar";
+}
+
+body.debug .sidebar::after {
+    content: "#sidebar";
+}
+
+body.debug .sidebar-header::after {
+    content: "#sidebar-header";
+}
+
+body.debug .file-tree::after {
+    content: "#file-tree";
+}
+
+body.debug .editor-container::after {
+    content: "#editor-container";
+}
+
+body.debug .tabs-container::after {
+    content: "#tabs-container";
+}
+
+body.debug .editor-header::after {
+    content: "#editor-header";
+}
+
+body.debug .editor-wrapper::after {
+    content: "#editor-wrapper";
+}
+
+body.debug .terminal-section::after {
+    content: "#terminal";
+}
+
+body.debug .command-palette::after {
+    content: "#command-palette";
+}
+
+body.debug .context-menu::after {
+    content: "#context-menu";
+}
+
+body.debug .welcome::after {
+    content: "#welcome";
+}
+
+body.debug .version-bar::after {
+    content: "#version-bar";
+}
 
 /* outline only (does NOT affect layout) */
 body.debug .toolbar,
@@ -425,7 +463,7 @@ input.inline-edit {
     line-height: 1.5;
 }
 
-.terminal-output > div {
+.terminal-output>div {
     margin: 0;
     padding: 0;
 }
@@ -653,7 +691,7 @@ input.inline-edit {
     height: 100%;
     background: transparent !important;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 14px;
+    font-size: var(--editor-font-size, 14px);
 }
 
 .cm-editor .cm-scroller {
