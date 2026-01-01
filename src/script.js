@@ -55,6 +55,8 @@ const DOM = {
     commandPalette: null,
     commandPaletteInput: null,
     commandPaletteList: null,
+    commandPaletteBtn: null,
+    searchBtn: null,
     themeStylesheet: null
 };
 
@@ -90,6 +92,8 @@ function initDOMCache() {
     DOM.commandPalette = document.getElementById('commandPalette');
     DOM.commandPaletteInput = document.getElementById('commandPaletteInput');
     DOM.commandPaletteList = document.getElementById('commandPaletteList');
+    DOM.commandPaletteBtn = document.getElementById('commandPaletteBtn');
+    DOM.searchBtn = document.getElementById('searchBtn');
     DOM.themeStylesheet = document.getElementById('themeStylesheet');
 }
 
@@ -382,6 +386,9 @@ const COMMANDS = [
         action: () => { closeCommandPalette(); clearTerminal(); }
     }
 ];
+
+// to make chromium shut the fuck up
+window.openCommandPalette = openCommandPalette;
 
 function openCommandPalette() {
     commandPaletteMode = 'commands';
@@ -1183,7 +1190,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     DOM.commandPaletteInput.addEventListener('keydown', handleCommandPaletteKeydown);
 
-
+    DOM.commandPaletteBtn.addEventListener('click', openCommandPalette);
+    DOM.searchBtn.addEventListener('click', openCommandPalette);
 });
 function toggleDebugTheme() {
     const enabled = document.body.classList.toggle("debug");

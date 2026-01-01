@@ -8,7 +8,7 @@ body.debug * {
 }
 
 /* base label */
-body.debug .toolbar::after,
+body.debug .nav-sidebar::after,
 body.debug .sidebar::after,
 body.debug .sidebar-header::after,
 body.debug .file-tree::after,
@@ -36,8 +36,8 @@ body.debug .version-bar::after {
 }
 
 /* labels */
-body.debug .toolbar::after {
-    content: "#toolbar";
+body.debug .nav-sidebar::after {
+    content: "#nav-sidebar";
 }
 
 body.debug .sidebar::after {
@@ -89,7 +89,7 @@ body.debug .version-bar::after {
 }
 
 /* outline only (does NOT affect layout) */
-body.debug .toolbar,
+body.debug .nav-sidebar,
 body.debug .sidebar,
 body.debug .file-tree,
 body.debug .editor-wrapper,
@@ -107,19 +107,70 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     height: 100vh;
     display: flex;
-    flex-direction: column;
     background: #0a0a0a;
     color: #e0e0e0;
     padding-bottom: 24px;
 }
 
-.toolbar {
+/* Navigation Sidebar */
+.nav-sidebar {
+    width: 50px;
     background: #111111;
-    padding: 10px;
-    border-bottom: 1px solid #1a1a1a;
+    border-right: 1px solid #1a1a1a;
     display: flex;
-    gap: 10px;
+    flex-direction: column;
     align-items: center;
+    padding: 10px 0;
+    gap: 5px;
+}
+
+.nav-btn {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    color: #888888;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.2s ease;
+    border-radius: 5px;
+    position: relative;
+}
+
+.nav-btn:hover {
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.nav-btn.active {
+    background: #1a1a1a;
+    color: #04ff;
+    border-left: 2px solid #04ff;
+}
+
+/* Tooltip */
+.nav-btn::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 55px;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.nav-btn:hover::after {
+    opacity: 1;
 }
 
 button {

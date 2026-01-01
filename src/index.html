@@ -6,20 +6,37 @@
     <title>Mizu Code</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="http://127.0.0.1:8765/theme.css" id="themeStylesheet">
-
-
 </head>
 
 <body>
-    <div class="toolbar">
-        <button onclick="selectFolder()">Workspace</button>
-        <button onclick="saveCurrentFile()" id="saveBtn" disabled>Save</button>
-        <span id="folderName" style="margin-left: auto; font-size: 12px; color: #888;"></span>
+    <!-- Navigation Sidebar -->
+    <div class="nav-sidebar">
+        <button class="nav-btn" data-tooltip="Workspace" onclick="selectFolder()">
+            <i class="fas fa-folder-open"></i>
+        </button>
+        <button class="nav-btn" data-tooltip="Save" onclick="saveCurrentFile()" id="saveBtn" disabled>
+            <i class="fas fa-save"></i>
+        </button>
+        <button class="nav-btn" data-tooltip="Search" id="searchBtn">
+            <i class="fas fa-search"></i>
+        </button>
+        <button class="nav-btn" data-tooltip="Git" onclick="alert('Git features coming soon!')">
+            <i class="fas fa-code-branch"></i>
+        </button>
+        <button class="nav-btn" data-tooltip="Extensions" onclick="alert('Extensions coming soon!')">
+            <i class="fas fa-puzzle-piece"></i>
+        </button>
+        <button class="nav-btn" data-tooltip="Command Palette" style="margin-top: auto;" id="commandPaletteBtn">
+            <i class="fas fa-cog"></i>
+        </button>
     </div>
 
     <div class="container" id="mainContainer">
         <div class="sidebar" id="sidebar" style="width: 300px;">
-            <div class="sidebar-header">EXPLORER</div>
+            <div class="sidebar-header">
+                <span>EXPLORER</span>
+                <span id="folderName" style="margin-left: auto; font-size: 10px; color: #666;"></span>
+            </div>
             <div class="file-tree" id="fileTree"></div>
         </div>
         <div class="resizer" id="resizer"></div>
@@ -115,7 +132,7 @@
     <div class="version-bar">Alpha v0.8</div>
 
 
-    <script type="module" src="script.js"></script>
+<!-- After script.js -->
+<script type="module" src="script.js"></script>
 </body>
-
 </html>
